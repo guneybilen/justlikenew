@@ -132,3 +132,114 @@ class TestPRJ(TestCase):
         self.assertEquals(res.status_code, 201)
         result = json.loads(res.content)["price"]
         self.assertEquals(float(result), 125.00)
+
+    def test_get_records(self):
+        token = self.get_token()
+        res = self.client.post('/api/items/',
+                               data=json.dumps({
+                                   "brand": "toshiba",
+                                   "model": "550",
+                                   "entry": "better hard drive...",
+                                   "price": 125.00,
+                                   "seller": 1,
+                               }),
+                               content_type='application/json',
+                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               )
+        self.assertEquals(res.status_code, 201)
+        brand1 = json.loads(res.content)["brand"]
+
+        res = self.client.post('/api/items/',
+                               data=json.dumps({
+                                   "brand": "toshiba",
+                                   "model": "750",
+                                   "entry": "better hard drive...",
+                                   "price": 125.00,
+                                   "seller": 1,
+                               }),
+                               content_type='application/json',
+                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               )
+        self.assertEquals(res.status_code, 201)
+        brand2 = json.loads(res.content)["brand"]
+
+        res = self.client.get('/api/items/',
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              )
+
+        self.assertEquals(res.status_code, 200)
+        results = json.loads(res.content)
+        result1 = json.loads(res.content)[0]["brand"]
+        result2 = json.loads(res.content)[1]["brand"]
+        self.assertEquals(len(results), 2)  # 2 records
+        self.assertTrue(result1 == brand1 or result2 == brand2)
+        self.assertTrue(result1 == brand2 or result1 == brand2)
+
+        slug1 = json.loads(res.content)[0]["slug"]
+        res = self.client.get(f'/api/items/{slug1}/',
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              )
+        self.assertEquals(res.status_code, 200)
+        result = json.loads(res.content)
+        self.assertEquals(result[0]["brand"], "toshiba")
+        self.assertEquals(result[0]["model"], "750")
+        self.assertEquals(result[0]["entry"], "better hard drive...")
+
+    def test_put_delete_items(self):
+        token = self.get_token()
+        res = self.client.post('/api/items/',
+                               data=json.dumps({
+                                   "brand": "toshiba",
+                                   "model": "550",
+                                   "entry": "better hard drive...",
+                                   "price": 125.00,
+                                   "seller": 1,
+                               }),
+                               content_type='application/json',
+                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               )
+        self.assertEquals(res.status_code, 201)
+        slug = json.loads(res.content)["slug"]
+        res = self.client.put(f"/api/items/{slug}/",
+                              data=json.dumps({
+                                  "brand": "m5",
+                                  "model": "m9",
+                                  "entry": "better hard drive...",
+                                  "price": 125.00,
+                                  "seller": 1
+                              }),
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              )
+
+        self.assertEquals(res.status_code, 200)
+        price = json.loads(res.content)["price"]
+        slug = json.loads(res.content)["slug"]
+        self.assertEquals(float(price), 125.00)
+        res = self.client.get(f'/api/items/{slug}/',
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              )
+        self.assertEquals(res.status_code, 200)
+        brand = json.loads(res.content)[0]["brand"]
+        model = json.loads(res.content)[0]["model"]
+        price = json.loads(res.content)[0]["price"]
+        entry = json.loads(res.content)[0]["entry"]
+        self.assertEquals(brand, 'm5')
+        self.assertEquals(model, 'm9')
+        self.assertEquals(float(price), 125.00)
+        self.assertEquals(entry, "better hard drive...")
+
+        res = self.client.delete(f'/api/items/{slug}/',
+                                 content_type='application/json',
+                                 HTTP_AUTHORIZATION=f'Bearer {token}'
+                                 )
+        self.assertEquals(res.status_code, 204)  # Gone
+
+        res = self.client.get(f'/api/items/{slug}/',
+                              content_type='application/json',
+                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              )
+        self.assertEquals(res.status_code, 404)  # Not found

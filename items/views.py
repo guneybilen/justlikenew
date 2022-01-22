@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -26,30 +27,32 @@ def items_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT', "DELETE"])
-@permission_classes([IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly])
-def items_detail(request, pk, slug):
+@api_view(["GET", "PUT", "DELETE"])
+# @permission_classes([IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly])
+def items_detail(request, slug):
     try:
-        item = Item.objects.get(pk)
+        item = Item.objects.filter(slug=slug).first()
     except Item.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        item_with_slug = Item.objects.get(slug=slug)
-        serializer = ItemSerializer(item_with_slug, context={'request': request}, many=True)
-
+        try:
+            item_with_slug = Item.objects.filter(slug=slug)
+            if not item_with_slug:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = ItemSerializer(item_with_slug, context={'request': request}, many=True)
+        except Exception as e:
+            print("in items.views.py ", e);
+            return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data)
 
     if request.method == 'PUT':
         serializer = ItemSerializer(item, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
         item.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-

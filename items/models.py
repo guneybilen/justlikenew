@@ -16,7 +16,7 @@ class Item(models.Model):
     uuid_field = models.UUIDField(default=uuid.uuid4(), editable=False)
     createdAt = models.DateTimeField(_("Item Listing Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Item Updated at"), auto_now=True)
-    slug = models.SlugField("Slug", default="", null=False, blank=True, db_index=True)
+    slug = models.SlugField("Slug", null=False, blank=True, db_index=True, unique=True)
 
     def __str__(self):
         return "{} {} by {}".format(self.brand, self.model, self.seller)
