@@ -28,7 +28,7 @@ def items_list(request):
 
 
 @api_view(["GET", "PUT", "DELETE"])
-# @permission_classes([IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly])
+@permission_classes([IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly])
 def items_detail(request, slug):
     try:
         item = Item.objects.filter(slug=slug).first()
