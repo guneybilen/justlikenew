@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -9,8 +8,9 @@ from .serializers import *
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly])
+@permission_classes([IsOwnerOrReadOnly])
 def items_list(request):
+
     if request.method == 'GET':
         data = Item.objects.all()
 
@@ -19,6 +19,8 @@ def items_list(request):
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        print(request.data)
+
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -28,11 +30,11 @@ def items_list(request):
 
 
 @api_view(["GET", "PUT", "DELETE"])
-@permission_classes([IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly])
+@permission_classes([IsOwnerOrReadOnly])
 def items_detail(request, slug):
-    try:
-        item = Item.objects.filter(slug=slug).first()
-    except Item.DoesNotExist:
+    item = Item.objects.filter(slug=slug).first()
+    print('item', item)
+    if not item:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':

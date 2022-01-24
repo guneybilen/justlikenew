@@ -44,17 +44,16 @@ INSTALLED_APPS = [
 
     # 3rd Party Apps
     # 'rest_framework.authtoken', # new
-    'django.contrib.sites', # new
+    'django.contrib.sites',  # new
     # 'allauth', # new
     # 'allauth.account', # new
     # 'allauth.socialaccount', # new
     # 'rest_auth.registration', # new
     'rest_framework',  # new
-    'corsheaders', # new
+    'corsheaders',  # new
     'items',
     'users',
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -155,7 +154,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 AUTHENTICATION_BACKENDS = (
-"django.contrib.auth.backends.ModelBackend", "allauth.account.auth_backends.AuthenticationBackend",
+    "django.contrib.auth.backends.ModelBackend", "allauth.account.auth_backends.AuthenticationBackend",
 )
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
@@ -164,15 +163,14 @@ ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_UNIQUE_EMAIL = True
 
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
 }
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'AUTH_HEADER_TYPES': ('JWT',),
 }
 
 STATIC_URL = '/static/'

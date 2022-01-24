@@ -13,7 +13,7 @@ class Item(models.Model):
     seller = models.ForeignKey(CustomUser, blank=False, null=False, related_name='items', on_delete=models.CASCADE)
     price = models.DecimalField(_("Price"), default=0.00, max_digits=9, decimal_places=2)
     entry = models.TextField(_("Entry"), max_length=1000, blank=True, default='', null=False)
-    uuid_field = models.UUIDField(default=uuid.uuid4(), editable=False)
+    uuid_field = models.UUIDField()
     createdAt = models.DateTimeField(_("Item Listing Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Item Updated at"), auto_now=True)
     slug = models.SlugField("Slug", null=False, blank=True, db_index=True, unique=True)
@@ -21,13 +21,31 @@ class Item(models.Model):
     def __str__(self):
         return "{} {} by {}".format(self.brand, self.model, self.seller)
 
+    # Relegated the followings to serializers.
+    # def __init__(self, *args, **kwargs):
+    #     super(Item, self).__init__(*args, **kwargs)
+    #     self.__original_brand = self.brand
+    #     self.__original_model = self.model
+    #     self.__original_price = self.price
+    #     self.__original_entry = self.entry
+    #
+    # def clean(self, *args, **kwargs):
+    #     if self.__original_brand == self.brand and self.__original_model == self.model and self.__original_price == self.price and self.__original_entry == self.entry:
+    #         return None
+    #     else:
+    #         return True
+
     def save(self, *args, **kwargs):
+        # result = self.full_clean()
+        # print(result)
+        # if result is not None:
+        #     self.uuid_field = uuid.uuid4()
         self.slug = '-'.join(
-            (slugify(self.brand), slugify(self.model), slugify(self.seller), str(self.uuid_field)[0:8]))
+            (slugify(self.seller), str(self.uuid_field)[0:16]))
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse('item-detail', kwargs={'slug': self.slug})
 
     class Meta:
-        ordering = ['-createdAt']
+        ordering = ['createdAt']

@@ -46,7 +46,7 @@ class TestPRJ(TestCase):
                                    "seller": 1
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer WRONG TOKEN'
+                               HTTP_AUTHORIZATION=f'JWT WRONG TOKEN'
                                )
         self.assertEquals(res.status_code, 401)
 
@@ -61,7 +61,7 @@ class TestPRJ(TestCase):
                                    "seller": 1
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               HTTP_AUTHORIZATION=f'JWT {token}'
                                )
         self.assertEquals(res.status_code, 201)
 
@@ -85,7 +85,7 @@ class TestPRJ(TestCase):
                                    "seller": 1
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               HTTP_AUTHORIZATION=f'JWT {token}'
                                )
         self.assertEquals(res.status_code, 400)
 
@@ -98,7 +98,7 @@ class TestPRJ(TestCase):
                                    "seller": 1
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               HTTP_AUTHORIZATION=f'JWT {token}'
                                )
         self.assertEquals(res.status_code, 400)
 
@@ -111,7 +111,7 @@ class TestPRJ(TestCase):
                                    "seller": 1
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               HTTP_AUTHORIZATION=f'JWT {token}'
                                )
         self.assertEquals(res.status_code, 400)
 
@@ -127,7 +127,7 @@ class TestPRJ(TestCase):
                                    "amount": 10000  # should be ignored
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               HTTP_AUTHORIZATION=f'JWT {token}'
                                )
         self.assertEquals(res.status_code, 201)
         result = json.loads(res.content)["price"]
@@ -144,7 +144,7 @@ class TestPRJ(TestCase):
                                    "seller": 1,
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               HTTP_AUTHORIZATION=f'JWT {token}'
                                )
         self.assertEquals(res.status_code, 201)
         brand1 = json.loads(res.content)["brand"]
@@ -158,14 +158,14 @@ class TestPRJ(TestCase):
                                    "seller": 1,
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               HTTP_AUTHORIZATION=f'JWT {token}'
                                )
         self.assertEquals(res.status_code, 201)
         brand2 = json.loads(res.content)["brand"]
 
         res = self.client.get('/api/items/',
                               content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              HTTP_AUTHORIZATION=f'JWT {token}'
                               )
 
         self.assertEquals(res.status_code, 200)
@@ -179,7 +179,7 @@ class TestPRJ(TestCase):
         slug1 = json.loads(res.content)[0]["slug"]
         res = self.client.get(f'/api/items/{slug1}/',
                               content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              HTTP_AUTHORIZATION=f'JWT {token}'
                               )
         self.assertEquals(res.status_code, 200)
         result = json.loads(res.content)
@@ -198,7 +198,7 @@ class TestPRJ(TestCase):
                                    "seller": 1,
                                }),
                                content_type='application/json',
-                               HTTP_AUTHORIZATION=f'Bearer {token}'
+                               HTTP_AUTHORIZATION=f'JWT {token}'
                                )
         self.assertEquals(res.status_code, 201)
         slug = json.loads(res.content)["slug"]
@@ -211,7 +211,7 @@ class TestPRJ(TestCase):
                                   "seller": 1
                               }),
                               content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              HTTP_AUTHORIZATION=f'JWT {token}'
                               )
 
         self.assertEquals(res.status_code, 200)
@@ -220,7 +220,7 @@ class TestPRJ(TestCase):
         self.assertEquals(float(price), 125.00)
         res = self.client.get(f'/api/items/{slug}/',
                               content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              HTTP_AUTHORIZATION=f'JWT {token}'
                               )
         self.assertEquals(res.status_code, 200)
         brand = json.loads(res.content)[0]["brand"]
@@ -234,12 +234,12 @@ class TestPRJ(TestCase):
 
         res = self.client.delete(f'/api/items/{slug}/',
                                  content_type='application/json',
-                                 HTTP_AUTHORIZATION=f'Bearer {token}'
+                                 HTTP_AUTHORIZATION=f'JWT {token}'
                                  )
         self.assertEquals(res.status_code, 204)  # Gone
 
         res = self.client.get(f'/api/items/{slug}/',
                               content_type='application/json',
-                              HTTP_AUTHORIZATION=f'Bearer {token}'
+                              HTTP_AUTHORIZATION=f'JWT {token}'
                               )
         self.assertEquals(res.status_code, 404)  # Not found
