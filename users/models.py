@@ -1,6 +1,7 @@
 # users/models.py
-from django.contrib.auth.models import AbstractUser
-from django.db import models
+# from django.contrib.auth.models import AbstractUser
+# from django.db import models
+# from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -14,6 +15,7 @@ class CustomUserManager(BaseUserManager):
     """
 
     def create_user(self, email, password, nickname, **extra_fields):
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!")
         """
         Create and save a User with the given email and password.
         """
@@ -25,6 +27,9 @@ class CustomUserManager(BaseUserManager):
 
         email = self.normalize_email(email)
         user = self.model(email=email, nickname=nickname, **extra_fields)
+        # print("!!!!!!!!!!!!!!!!!!!!!!!!!!", password)
+        # DO NOT USE make_password() serializers.Userserializer crate method takes care of hashing password
+        # user.set_password(make_password(password))
         user.set_password(password)
         user.save()
         return user
@@ -34,6 +39,7 @@ class CustomUserManager(BaseUserManager):
         Create and save a SuperUser with the given email and password.
         """
 
+        print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ")
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
@@ -54,6 +60,7 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(_("Phone Number"), max_length=50)
     createdAt = models.DateTimeField(_("Registration Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Updated at"), auto_now=True)
+    is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nickname']

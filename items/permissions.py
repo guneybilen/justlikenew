@@ -9,8 +9,10 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     # Read permissions are allowed to any request,
     # so we will always allow GET, HEAD or OPTIONS request
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
+        # if request.method in permissions.SAFE_METHODS:
+        #     return True
+        print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+        result = obj.seller == request.user
+        print(result)
         return obj.owner == request.user
 

@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
@@ -8,7 +8,7 @@ from .serializers import *
 
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsOwnerOrReadOnly])
+@permission_classes([AllowAny])
 def items_list(request):
 
     if request.method == 'GET':
@@ -33,6 +33,12 @@ def items_list(request):
 @permission_classes([IsOwnerOrReadOnly])
 def items_detail(request, slug):
     item = Item.objects.filter(slug=slug).first()
+    result = request.data['seller'] == item.seller
+    print(item)
+    print(result)
+    if result is False:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
     print('item', item)
     if not item:
         return Response(status=status.HTTP_404_NOT_FOUND)

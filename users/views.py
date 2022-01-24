@@ -10,15 +10,15 @@ from .serializers import *
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsOwnerOrReadOnly])
-def items_list(request):
-    if request.method == 'GET':
-        data = CustomUser.objects.all()
+def users(request):
+    # if request.method == 'GET':
+    #     data = CustomUser.objects.all()
+    #
+    #     serializer = UserSerializer(data, context={'request': request}, many=True)
+    #
+    #     return Response(serializer.data)
 
-        serializer = UserSerializer(data, context={'request': request}, many=True)
-
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
+    if request.method == 'POST':
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -29,30 +29,27 @@ def items_list(request):
 
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsOwnerOrReadOnly])
-def items_detail(request, slug):
-    item = CustomUser.objects.filter(slug=slug).first()
-    print('item', item)
-    if not item:
+def user_detail(request, pk):
+    user = CustomUser.objects.get(pk=pk)
+    print('user', user)
+    if not user:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
         try:
-            item_with_slug = CustomUser.objects.filter(slug=slug)
-            if not item_with_slug:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            serializer = UserSerializer(item_with_slug, context={'request': request}, many=True)
+            serializer = UserSerializer(user, context={'request': request}, many=True)
         except Exception as e:
-            print("in items.views.py ", e);
+            print("in users.views.py ", e);
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data)
 
     if request.method == 'PUT':
-        serializer = UserSerializer(item, data=request.data, context={'request': request})
+        serializer = UserSerializer(user, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        item.delete()
+        user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

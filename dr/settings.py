@@ -153,9 +153,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 # Django All Auth config. Add all of this.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-AUTHENTICATION_BACKENDS = (
-    "django.contrib.auth.backends.ModelBackend", "allauth.account.auth_backends.AuthenticationBackend",
-)
+
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
@@ -171,6 +169,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('JWT',),
+    'USER_ID_FIELD': 'email',
 }
 
 STATIC_URL = '/static/'

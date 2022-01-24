@@ -1,5 +1,3 @@
-from django.urls import path, include, re_path
-
 # urlpatterns = [
 # path(^password/reset/', PasswordResetView.as_view(),
 #     name='rest_password_reset'),
@@ -12,8 +10,11 @@ from django.urls import path, include, re_path
 # path('user/', UserDetailsView.as_view(), name='rest_user_details'),
 # path('password/change/', PasswordChangeView.as_view(), name='rest_password_change'),
 # ]
-
+from django.urls import path, include
+from users import views
 
 urlpatterns = [
-    path('', include("django.contrib.auth.urls"))
+    path('', include("django.contrib.auth.urls")),
+    path('', views.users),
+    path("<int:pk>/", views.user_detail, name='user-detail'),
 ]
