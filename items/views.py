@@ -1,16 +1,19 @@
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from django.views.decorators.csrf import csrf_protect
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.authentication import TokenAuthentication
+
 from rest_framework import status
 from .permissions import IsOwnerOrReadOnly
-
+from dr import settings
 from .serializers import *
 
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
+@csrf_protect
 def items_list(request):
-
     if request.method == 'GET':
         data = Item.objects.all()
 
@@ -29,17 +32,20 @@ def items_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# @authentication_classes(TokenAuthentication, )
 @api_view(["GET", "PUT", "DELETE"])
-@permission_classes([IsOwnerOrReadOnly])
+@csrf_protect
 def items_detail(request, slug):
-    item = Item.objects.filter(slug=slug).first()
-    result = request.data['seller'] == item.seller
-    print(item)
-    print(result)
+    item = Item.objects.get(slug=slug)
+    # nickname = item.get_seller_nickname
+    print(request.headers.get('Authorization'))
+
+    nickname_from_client = request.data['nickname']
+    result = (u'{0}'.format(item.get_seller_nickname)) == (u"{0}".format(nickname_from_client))
     if result is False:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    print('item', item)
+    # print('item', item)
     if not item:
         return Response(status=status.HTTP_404_NOT_FOUND)
 

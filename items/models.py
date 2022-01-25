@@ -21,6 +21,14 @@ class Item(models.Model):
     def __str__(self):
         return "{} {} by {}".format(self.brand, self.model, self.seller)
 
+    @property
+    def get_seller_nickname(self):
+        return f"{self.seller}"
+
+    def get_item_seller_email(self):
+        return self.seller.email
+
+
     # Relegated the followings to serializers.
     # def __init__(self, *args, **kwargs):
     #     super(Item, self).__init__(*args, **kwargs)

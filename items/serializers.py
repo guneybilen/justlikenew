@@ -2,20 +2,25 @@ import uuid
 
 from rest_framework import serializers
 from .models import Item
-from .models import CustomUser
+# from .models import CustomUser
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ('email',)
-
-    def to_representation(self, value):
-        return value.email
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CustomUser
+#         fields = ('email', 'nickname')
+#
+#     def to_representation(self, value):
+#         return value.nickname
 
 
 class ItemSerializer(serializers.ModelSerializer):
-    user = UserSerializer(source='seller', read_only=True)
+    # user = UserSerializer(source='seller', read_only=True)
+
+    # get_nickname = serializers.SerializerMethodField()
+    #
+    # def get_nickname(self, obj):
+    #     return obj.get_seller_nickname()
 
     def create(self, validated_data):
         uuid_field = uuid.uuid4()
@@ -31,6 +36,5 @@ class ItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        read_only_fields = ('user',)
-        fields = ('brand', 'model', 'seller', 'user', 'price', 'entry', 'createdAt', 'slug')
-
+        # read_only_fields = ('user',)
+        fields = ('brand', 'model', 'seller', 'price', 'entry', 'createdAt', 'slug', 'get_seller_nickname')

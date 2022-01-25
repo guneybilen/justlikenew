@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     # 'allauth.account', # new
     # 'allauth.socialaccount', # new
     # 'rest_auth.registration', # new
+    # 'rest_framework.authtoken',  # Add this line
+    # 'rest_auth',  # Add this line
     'rest_framework',  # new
     'corsheaders',  # new
     'items',
@@ -168,9 +170,10 @@ REST_FRAMEWORK = {
 }
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
-    'AUTH_HEADER_TYPES': ('JWT',),
-    'USER_ID_FIELD': 'email',
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+
