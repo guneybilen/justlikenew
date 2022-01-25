@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
-from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -30,7 +29,34 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.localhost']
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_ALLOW_ALL = False
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000"
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    'name',
+    'auth',
+]
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 
 # Application definition
 
@@ -41,17 +67,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # 3rd Party Apps
-    # 'rest_framework.authtoken', # new
     'django.contrib.sites',  # new
-    # 'allauth', # new
-    # 'allauth.account', # new
-    # 'allauth.socialaccount', # new
-    # 'rest_auth.registration', # new
-    # 'rest_framework.authtoken',  # Add this line
-    # 'rest_auth',  # Add this line
     'rest_framework',  # new
+    # 'rest_framework.authtoken', # added later
     'corsheaders',  # new
     'items',
     'users',
@@ -62,24 +80,11 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-CORS_ORIGIN_ALLOW_ALL = True
-
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000"
-]
-
-CORS_ORIGIN_WHITELIST = (
-    'http://127.0.0.1:3000',
-    'localhost:3000',
-)
 
 ROOT_URLCONF = 'dr.urls'
 
@@ -140,21 +145,11 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.0/howto/static-files/
-
-STATIC_URL = 'static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-# Django All Auth config. Add all of this.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
@@ -165,15 +160,12 @@ ACCOUNT_UNIQUE_EMAIL = True
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'users.verify.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     )
-}
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
-    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-
-

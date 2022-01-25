@@ -10,11 +10,13 @@
 # path('user/', UserDetailsView.as_view(), name='rest_user_details'),
 # path('password/change/', PasswordChangeView.as_view(), name='rest_password_change'),
 # ]
-from django.urls import path, include
+from django.urls import path
 from users import views
+from .views import login_view
 
 urlpatterns = [
-    path('', include("django.contrib.auth.urls")),
-    path('', views.users),
+    # path('', include("django.contrib.auth.urls")),
+    # path('', views.users),
     path("<int:pk>/", views.user_detail, name='user-detail'),
+    path('login/', login_view, name='login'),
 ]
