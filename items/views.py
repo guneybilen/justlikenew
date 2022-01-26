@@ -13,12 +13,12 @@ from users.verify import *
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
-@csrf_protect
+# @csrf_protect
 def items_list(request):
+    # print(request.user)
     if request.method == 'GET':
         data = Item.objects.all()
-
-        serializer = ItemSerializer(data, context={'request': request}, many=True)
+        serializer = ItemSerializer(data, context={'request': request }, many=True)
 
         return Response(serializer.data)
 
@@ -35,17 +35,17 @@ def items_list(request):
 
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([AllowAny])
-@csrf_exempt
+@ensure_csrf_cookie
 def items_detail(request, slug):
     item = Item.objects.filter(slug=slug).first()
     # nickname = item.get_seller_nickname
-    print(request.user)
+    # print(request.user)
     nickname_from_client = request.data['nickname']
     result = (u'{0}'.format(item.get_seller_nickname)) == (u"{0}".format(nickname_from_client))
     if result is False:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    print('item', item)
+    # print('item', item)
     if not item:
         return Response(status=status.HTTP_404_NOT_FOUND)
 

@@ -18,7 +18,7 @@ class JWTAuthentication(BaseAuthentication):
         User = get_user_model()
         authorization_heaader = request.headers.get('Auth')
         # print('User', User)
-        print("pop", request.headers)
+        # print("pop", request.headers)
         if not authorization_heaader or authorization_heaader.startswith("Token"):
             return None
         try:
@@ -45,6 +45,6 @@ class JWTAuthentication(BaseAuthentication):
         check = CSRFCheck(request)
         check.process_request(request)
         reason = check.process_view(request, None, (), {})
-        print(reason)
+        # print(reason)
         if reason:
             raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)
