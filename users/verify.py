@@ -14,12 +14,11 @@ class CSRFCheck(CsrfViewMiddleware):
 class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
-
         User = get_user_model()
         authorization_heaader = request.headers.get('Auth')
         # print('User', User)
-        # print("pop", request.headers)
-        if not authorization_heaader or authorization_heaader.startswith("Token"):
+        # print("Auth", request.headers.get('Auth'))
+        if authorization_heaader == 'Bearer null' or not authorization_heaader or authorization_heaader.startswith("Token"):
             return None
         try:
             access_token = authorization_heaader.split(' ')[1]
@@ -45,6 +44,5 @@ class JWTAuthentication(BaseAuthentication):
         check = CSRFCheck(request)
         check.process_request(request)
         reason = check.process_view(request, None, (), {})
-        # print(reason)
         if reason:
             raise exceptions.PermissionDenied('CSRF Failed: %s' % reason)

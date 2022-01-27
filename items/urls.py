@@ -18,6 +18,7 @@ from items import views
 
 urlpatterns = [
     path('api/items/', views.items_list),
+    path('api/item/', views.items_post),
     path("api/items/<slug:slug>/", views.items_detail, name='item-detail'),
 ]
 

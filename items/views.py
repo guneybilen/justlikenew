@@ -11,26 +11,31 @@ from .serializers import *
 from users.verify import *
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 @permission_classes([AllowAny])
 # @csrf_protect
 def items_list(request):
-    # print(request.user)
+    # print('user', request.user)
     if request.method == 'GET':
         data = Item.objects.all()
-        serializer = ItemSerializer(data, context={'request': request }, many=True)
+        serializer = ItemSerializer(data, context={'request': request}, many=True)
 
         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        print(request.data)
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+# @csrf_protect
+def items_post(request):
+    if request.method == 'POST':
+        # print(request.data)
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET", "PUT", "DELETE"])

@@ -25,21 +25,29 @@ load_dotenv(envars)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
+REFRESH_TOKEN_SECRET = os.getenv('REFRESH_TOKEN_SECRET')
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.localhost']
+ALLOWED_HOSTS = ['.localhost', '192.168.0.165', '192.168.0.193']
+# ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ORIGIN_ALLOW_ALL = False
+# when deploying adjust the following
+# CSRF_TRUSTED_ORIGINS = [
+#     "*",
+# ]
+
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8000',
     "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
+    'http://192.168.0.193:3000'
 ]
 
 CORS_ALLOW_HEADERS = [
