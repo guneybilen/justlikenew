@@ -135,4 +135,4 @@ def refresh_token_view(request):
 
     access_token = generate_access_token(user)
     # print('access_token', access_token)
-    return Response({'access_token': access_token})
+    return Response({'access_token': access_token, 'user_id': user.id, 'nickname': user.nickname})

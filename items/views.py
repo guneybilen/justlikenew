@@ -12,10 +12,12 @@ from users.verify import *
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
 # @csrf_protect
+# @authentication_classes([])
+# @permission_classes([])
 def items_list(request):
-    # print('user', request.user)
+    print('user', request.user)
     if request.method == 'GET':
         data = Item.objects.all()
         serializer = ItemSerializer(data, context={'request': request}, many=True)
