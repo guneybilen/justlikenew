@@ -19,19 +19,20 @@ class JWTAuthentication(BaseAuthentication):
         refresh_token = request.COOKIES.get('refreshtoken')
         # print('User', User)
         # print("Auth", request.headers.get('Auth'))
-        if authorization_heaader == 'Bearer null' or not authorization_heaader or authorization_heaader.startswith("Token"):
+        if authorization_heaader == 'Bearer null' or not authorization_heaader or authorization_heaader.startswith(
+                "Token"):
             return None
         try:
             access_token = authorization_heaader.split(' ')[1]
-            print('access_token', authorization_heaader)
-            if not access_token:
-                print('access_token', authorization_heaader)
-                raise exceptions.AuthenticationFailed('access_token not present')
-            payload = jwt.decode(
-                refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256']) or jwt.decode(
-                access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            # print('access_token', access_token)
+            # print('refresh_token', refresh_token)
+            if refresh_token:
+                print('verify.py')
+                payload = jwt.decode(
+                    refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256']) or jwt.decode(
+                    access_token, settings.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed('access_token expired')
+            raise exceptions.AuthenticationFailed('access_token and refresh_token has expired')
         except IndexError:
             raise exceptions.AuthenticationFailed('Auth prefix missing')
 

@@ -113,16 +113,20 @@ def refresh_token_view(request):
     refresh_token = request.COOKIES.get('refreshtoken')
     # print('refresh_token', refresh_token)
     if refresh_token is None:
-        raise exceptions.AuthenticationFailed(
-            'Authentication credentials were not provided.')
+        # raise exceptions.AuthenticationFailed(
+        #     'Authentication credentials were not provided.')
+        return Response(status=status.HTTP_204_NO_CONTENT)
     try:
-        print(settings.REFRESH_TOKEN_SECRET)
         payload = jwt.decode(
             refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256'])
-        # print('payload', payload)
     except jwt.ExpiredSignatureError:
-        raise exceptions.AuthenticationFailed(
-            'expired refresh token, please login again.')
+        print('users/views.py')
+        response = Response()
+        response.delete_cookie("refreshtoken")
+        # you canot do the following; raises ~ "Nonetype object can not have assignment error"
+        # response.data['info'] = 'expired refresh token, please login again.'
+        # response.data['status_code'] = status.HTTP_204_NO_CONTENT
+        return response
     except jwt.InvalidSignatureError:
         raise jwt.InvalidSignatureError(
             'InvalidSignatureError -  tokens are not same when encoded and decoded by guney')
@@ -134,5 +138,4 @@ def refresh_token_view(request):
         raise exceptions.AuthenticationFailed('user is inactive')
 
     access_token = generate_access_token(user)
-    # print('access_token', access_token)
     return Response({'access_token': access_token, 'user_id': user.id, 'nickname': user.nickname})

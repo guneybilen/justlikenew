@@ -12,12 +12,11 @@ from users.verify import *
 
 
 @api_view(['GET'])
-# @permission_classes([AllowAny])
-# @csrf_protect
-# @authentication_classes([])
-# @permission_classes([])
+@authentication_classes([])
+@permission_classes([])
+@csrf_protect
 def items_list(request):
-    print('user', request.user)
+    # print('user', request.user)
     if request.method == 'GET':
         data = Item.objects.all()
         serializer = ItemSerializer(data, context={'request': request}, many=True)
@@ -27,7 +26,7 @@ def items_list(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-# @csrf_protect
+@ensure_csrf_cookie
 def items_post(request):
     if request.method == 'POST':
         # print(request.data)
@@ -42,7 +41,7 @@ def items_post(request):
 
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([AllowAny])
-@ensure_csrf_cookie
+# @ensure_csrf_cookie
 def items_detail(request, slug):
     item = Item.objects.filter(slug=slug).first()
     # nickname = item.get_seller_nickname
