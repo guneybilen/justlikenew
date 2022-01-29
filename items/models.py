@@ -11,7 +11,7 @@ class Item(models.Model):
     brand = models.CharField(_("Name"), max_length=240)
     model = models.CharField(_("Model"), max_length=240)
     seller = models.ForeignKey(CustomUser, blank=False, null=False, related_name='items', on_delete=models.CASCADE)
-    price = models.DecimalField(_("Price"), default=0.00, max_digits=9, decimal_places=2)
+    price = models.DecimalField(_("Price"), default=0.00, blank=True, max_digits=9, decimal_places=2)
     entry = models.TextField(_("Entry"), max_length=1000, blank=True, default='', null=False)
     uuid_field = models.UUIDField()
     createdAt = models.DateTimeField(_("Item Listing Date"), auto_now_add=True)
@@ -25,8 +25,9 @@ class Item(models.Model):
     def get_seller_nickname(self):
         return f"{self.seller}"
 
-    def get_item_seller_email(self):
-        return self.seller.email
+    @property
+    def get_user_id(self):
+        return self.seller.id
 
 
     # Relegated the followings to serializers.

@@ -32,10 +32,9 @@ class ItemSerializer(serializers.ModelSerializer):
         instance.model = validated_data.get('model', instance.model)
         instance.price = validated_data.get('price', instance.price)
         instance.entry = validated_data.get('entry', instance.entry)
-        # instance.seller = validated_data.get('seller', instance.created)
-        return instance
+        # instance.seller = validated_data.get('seller', instance.seller)
+        return super().update(instance, validated_data)
 
     class Meta:
         model = Item
-        # read_only_fields = ('user',)
-        fields = ('brand', 'model', 'seller', 'price', 'entry', 'createdAt', 'slug', 'get_seller_nickname')
+        fields = ('brand', 'model', 'seller', 'price', 'entry', 'createdAt', 'slug', 'get_user_id', 'get_seller_nickname')

@@ -1,5 +1,8 @@
 import jwt
+from django.contrib.auth.models import AnonymousUser
 from rest_framework.authentication import BaseAuthentication
+from rest_framework.response import Response
+
 from django.middleware.csrf import CsrfViewMiddleware
 from rest_framework import exceptions
 from django.conf import settings
@@ -15,26 +18,22 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         User = get_user_model()
-        authorization_heaader = request.headers.get('Auth')
+        authorization_heaader = request.headers.get('auth')
         refresh_token = request.COOKIES.get('refreshtoken')
-        # print('User', User)
-        # print("Auth", request.headers.get('Auth'))
-        if authorization_heaader == 'Bearer null' or not authorization_heaader or authorization_heaader.startswith(
-                "Token"):
-            return None
+        access_token = authorization_heaader and authorization_heaader.split(' ')[1]
+        if not access_token and not refresh_token:
+            print('None')
+            return AnonymousUser, None
         try:
-            access_token = authorization_heaader.split(' ')[1]
-            # print('access_token', access_token)
-            # print('refresh_token', refresh_token)
-            if refresh_token:
-                print('verify.py')
-                payload = jwt.decode(
-                    refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256']) or jwt.decode(
-                    access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            print('verify.py')
+            payload = jwt.decode(
+                refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256']) or jwt.decode(
+                access_token, settings.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            raise exceptions.AuthenticationFailed('access_token and refresh_token has expired')
-        except IndexError:
-            raise exceptions.AuthenticationFailed('Auth prefix missing')
+            print('expired')
+            return AnonymousUser, None
+
+            # raise exceptions.AuthenticationFailed('access_token or refresh_token has expired')
 
         user = User.objects.filter(id=payload['user_id']).first()
         if user is None:

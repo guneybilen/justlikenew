@@ -1,6 +1,7 @@
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie, csrf_exempt
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
+from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.authentication import TokenAuthentication
 
@@ -25,11 +26,12 @@ def items_list(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 @ensure_csrf_cookie
 def items_post(request):
-    if request.method == 'POST':
-        # print(request.data)
+    if request.method == 'POST' and request.user is not AnonymousUser:
+        if request.user.is_active == False:
+            return Response(status.HTTP_404_NOT_FOUND)
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -40,18 +42,15 @@ def items_post(request):
 
 
 @api_view(["GET", "PUT", "DELETE"])
-@permission_classes([AllowAny])
-# @ensure_csrf_cookie
+@permission_classes([IsAuthenticatedOrReadOnly])
+@ensure_csrf_cookie
 def items_detail(request, slug):
     item = Item.objects.filter(slug=slug).first()
-    # nickname = item.get_seller_nickname
-    # print(request.user)
     nickname_from_client = request.data['nickname']
     result = (u'{0}'.format(item.get_seller_nickname)) == (u"{0}".format(nickname_from_client))
     if result is False:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    # print('item', item)
     if not item:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -71,6 +70,7 @@ def items_detail(request, slug):
         serializer = ItemSerializer(item, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
+
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

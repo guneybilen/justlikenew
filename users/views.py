@@ -97,6 +97,7 @@ def login_view(request):
     refresh_token = generate_refresh_token(user)
 
     response.set_cookie(key='refreshtoken', value=refresh_token, httponly=True)
+    response.set_cookie(key='loggedIn', value=True)
     response.data = {
         'access_token': access_token,
         'user': serialized_user,
@@ -104,6 +105,14 @@ def login_view(request):
 
     return response
 
+@api_view(['GET'])
+@permission_classes([AllowAny],)
+@ensure_csrf_cookie
+def logout_view(request):
+    response = Response()
+    response.delete_cookie(key='refreshtoken')
+    response.delete_cookie(key='loggedIn')
+    return response
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -111,7 +120,7 @@ def login_view(request):
 def refresh_token_view(request):
     User = get_user_model()
     refresh_token = request.COOKIES.get('refreshtoken')
-    # print('refresh_token', refresh_token)
+    print('users/views.py refresh_token', refresh_token)
     if refresh_token is None:
         # raise exceptions.AuthenticationFailed(
         #     'Authentication credentials were not provided.')
@@ -123,6 +132,7 @@ def refresh_token_view(request):
         print('users/views.py')
         response = Response()
         response.delete_cookie("refreshtoken")
+        response.delete_cookie("loggedIn")
         # you canot do the following; raises ~ "Nonetype object can not have assignment error"
         # response.data['info'] = 'expired refresh token, please login again.'
         # response.data['status_code'] = status.HTTP_204_NO_CONTENT
