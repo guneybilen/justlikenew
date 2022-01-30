@@ -7,13 +7,14 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .auth import generate_access_token, generate_refresh_token
 from django.views.decorators.csrf import csrf_protect
 from django.utils.translation import gettext as _
 import jwt
 from django.conf import settings
+
 
 def validate_password_strength(value):
     """Validates that a password is as least 7 characters long and has at least
@@ -48,19 +49,19 @@ def users_view(request):
 
     if request.method == 'POST':
         User = get_user_model()
-        print(request.data)
+        # print(request.data)
         username = request.data.get('email')
         password = request.data.get('password')
         passwordConfirm = request.data.get('passwordConfirm')
         nickname = request.data.get('nickname')
         if (username is None) or (password is None) or (passwordConfirm is None) or (nickname is None):
             return Response({"message": 'username, password, password information, and nickname are required'},
-                     status=status.HTTP_406_NOT_ACCEPTABLE)
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
 
         forEmailCheck = User.objects.filter(email=username).exists()
         if forEmailCheck:
             return Response({"message": 'email in use'},
-                     status=status.HTTP_409_CONFLICT)
+                            status=status.HTTP_409_CONFLICT)
         forNickNameCheck = User.objects.filter(nickname=nickname).exists()
         if forNickNameCheck:
             return Response({"message": 'nickname in use'}, status=status.HTTP_409_CONFLICT)
@@ -92,7 +93,7 @@ def user_detail(request, pk):
         try:
             serializer = UserSerializer(user, context={'request': request}, many=True)
         except Exception as e:
-            print("in users.views.py ", e);
+            # print("in users.views.py ", e);
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data)
 
@@ -118,9 +119,9 @@ def user(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny], )
+@authentication_classes([])
 @ensure_csrf_cookie
 def login_view(request):
-    # print(request.user)
     User = get_user_model()
     username = request.data.get('email')
     password = request.data.get('password')
@@ -147,7 +148,6 @@ def login_view(request):
         'access_token': access_token,
         'user': serialized_user,
     }
-
     return response
 
 
@@ -167,7 +167,7 @@ def logout_view(request):
 def refresh_token_view(request):
     User = get_user_model()
     refresh_token = request.COOKIES.get('refreshtoken')
-    print('users/views.py refresh_token', refresh_token)
+    # print('users/views.py refresh_token', refresh_token)
     if refresh_token is None:
         # raise exceptions.AuthenticationFailed(
         #     'Authentication credentials were not provided.')

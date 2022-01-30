@@ -11,6 +11,14 @@ from dr import settings
 from .serializers import *
 from users.verify import *
 
+def clear_nulls(request):
+    if request.data['item_image1'] == 'null':
+        request.data["item_image1"] = ""
+    if request.data['item_image2'] == 'null':
+        request.data["item_image2"] = ""
+    if request.data['item_image3'] == 'null':
+        request.data["item_image3"] = ""
+    return request
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -32,6 +40,14 @@ def items_post(request):
     if request.method == 'POST' and request.user is not AnonymousUser:
         if request.user.is_active == False:
             return Response(status.HTTP_404_NOT_FOUND)
+        if request.data['item_image1'] == 'null':
+            request.data["item_image1"] = ""
+        if request.data['item_image2'] == 'null':
+            request.data["item_image2"] = ""
+        if request.data['item_image3'] == 'null':
+            request.data["item_image3"] = ""
+        if request.data['price'] == '':
+            request.data["price"] = 0
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -45,6 +61,7 @@ def items_post(request):
 @permission_classes([IsAuthenticatedOrReadOnly])
 @ensure_csrf_cookie
 def items_detail(request, slug):
+    # print(request.data)
     item = Item.objects.filter(slug=slug).first()
     nickname_from_client = request.data['nickname']
     result = (u'{0}'.format(item.get_seller_nickname)) == (u"{0}".format(nickname_from_client))
@@ -66,6 +83,15 @@ def items_detail(request, slug):
         return Response(serializer.data)
 
     if request.method == 'PUT':
+        if request.data['item_image1'] == 'null':
+            request.data["item_image1"] = ""
+        if request.data['item_image2'] == 'null':
+            request.data["item_image2"] = ""
+        if request.data['item_image3'] == 'null':
+            request.data["item_image3"] = ""
+        if request.data['price'] == '':
+            request.data["price"] = 0
+        cleared_data = clear_nulls(request)
         item = Item.objects.filter(slug=slug).first()
         serializer = ItemSerializer(item, data=request.data, context={'request': request})
         if serializer.is_valid():
