@@ -8,7 +8,8 @@ from .models import CustomUser
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('email', 'nickname')
+        fields = ('nickname')
+        # read_only_fields = ('is_active', 'is_staff')
 
     def to_representation(self, value):
         return value.nickname

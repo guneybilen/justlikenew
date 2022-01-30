@@ -11,13 +11,34 @@ from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .auth import generate_access_token, generate_refresh_token
 from django.views.decorators.csrf import csrf_protect
+from django.utils.translation import gettext as _
 import jwt
 from django.conf import settings
 
+def validate_password_strength(value):
+    """Validates that a password is as least 7 characters long and has at least
+    1 digit and 1 letter.
+    """
+    min_length = 7
+
+    if len(value) < min_length:
+        return _('password must be at least {0} characters long.').format(min_length)
+
+    # check for digit
+    if not any(char.isdigit() for char in value):
+        return _('password must contain at least 1 digit.')
+
+    # check for letter
+    if not any(char.isalpha() for char in value):
+        return _('password must contain at least 1 letter.')
+
+    return None
+
 
 @api_view(['GET', 'POST'])
-@permission_classes([IsOwnerOrReadOnly])
-def users(request):
+@permission_classes([AllowAny])
+@ensure_csrf_cookie
+def users_view(request):
     # if request.method == 'GET':
     #     data = CustomUser.objects.all()
     #
@@ -26,11 +47,36 @@ def users(request):
     #     return Response(serializer.data)
 
     if request.method == 'POST':
+        User = get_user_model()
+        print(request.data)
+        username = request.data.get('email')
+        password = request.data.get('password')
+        passwordConfirm = request.data.get('passwordConfirm')
+        nickname = request.data.get('nickname')
+        if (username is None) or (password is None) or (passwordConfirm is None) or (nickname is None):
+            return Response({"message": 'username, password, password information, and nickname are required'},
+                     status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        forEmailCheck = User.objects.filter(email=username).exists()
+        if forEmailCheck:
+            return Response({"message": 'email in use'},
+                     status=status.HTTP_409_CONFLICT)
+        forNickNameCheck = User.objects.filter(nickname=nickname).exists()
+        if forNickNameCheck:
+            return Response({"message": 'nickname in use'}, status=status.HTTP_409_CONFLICT)
+
+        result = validate_password_strength(password)
+
+        if result is not None:
+            return Response({"message": result}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        if password != passwordConfirm:
+            raise exceptions.AuthenticationFailed(
+                'password and password confirmation needs to be the same value')
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -62,7 +108,6 @@ def user_detail(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def user(request):
@@ -72,7 +117,7 @@ def user(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny],)
+@permission_classes([AllowAny], )
 @ensure_csrf_cookie
 def login_view(request):
     # print(request.user)
@@ -105,14 +150,16 @@ def login_view(request):
 
     return response
 
+
 @api_view(['GET'])
-@permission_classes([AllowAny],)
+@permission_classes([AllowAny], )
 @ensure_csrf_cookie
 def logout_view(request):
     response = Response()
     response.delete_cookie(key='refreshtoken')
     response.delete_cookie(key='loggedIn')
     return response
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

@@ -31,7 +31,7 @@ REFRESH_TOKEN_SECRET = os.getenv('REFRESH_TOKEN_SECRET')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.localhost', '192.168.0.165', '192.168.0.193']
+ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '192.168.0.165', '192.168.0.193']
 # ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_CREDENTIALS = True

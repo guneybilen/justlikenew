@@ -12,13 +12,14 @@
 # ]
 from django.urls import path
 from users import views
-from .views import login_view, refresh_token_view, logout_view
+from .views import login_view, refresh_token_view, logout_view, users_view
 
 urlpatterns = [
     # path('', include("django.contrib.auth.urls")),
     # path('', views.users),
     path("<int:pk>/", views.user_detail, name='user-detail'),
     path('login/', login_view, name='login'),
+    path('users/', users_view, name='users'),
     path('logout/', logout_view, name='logout'),
     path('refreshtokenview/', refresh_token_view, name='refresh_token_view'),
 ]
