@@ -23,10 +23,8 @@ class ItemSerializer(serializers.ModelSerializer):
     # def get_nickname(self, obj):
     #     return obj.get_seller_nickname()
 
-    price = serializers.DecimalField(required=False, max_digits=9, decimal_places=2)
-    item_image1 = serializers.ImageField(required=False, allow_null=True, default='')
-    item_image2 = serializers.ImageField(required=False, allow_null=True, default='')
-    item_image3 = serializers.ImageField(required=False, allow_null=True, default='')
+    def imageValidator(self):
+        pass
 
     def create(self, validated_data):
         uuid_field = uuid.uuid4()
@@ -49,9 +47,10 @@ class ItemSerializer(serializers.ModelSerializer):
             'brand', 'model', 'seller', 'item_image1', 'item_image2', 'item_image3', 'price', 'entry', 'createdAt',
             'slug',
             'get_user_id', 'get_seller_nickname')
-        # extra_kwargs = {
-        #     'price': {'required': False, 'allow_null': True, 'default': ''},
-        #     'item_image1': {'required': False, 'allow_null': True, 'default': ''},
-        #     'item_image2': {'required': False, 'allow_null': True, 'default': ''},
-        #     'item_image3': {'required': False, 'allow_null': True, 'default': ''}
-        # }
+        extra_kwargs = {
+            'price': {'required': False},
+            'item_image1': {'required': False},
+            'item_image2': {'required': False},
+            'item_image3': {'required': False}
+        }
+
