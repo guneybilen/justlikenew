@@ -135,7 +135,7 @@ def login_view(request):
     if (user is None):
         raise exceptions.AuthenticationFailed('user not found')
     if (not user.check_password(password)):
-        raise exceptions.AuthenticationFailed('wrong password')
+        raise exceptions.AuthenticationFailed('wrong email or wrong password')
 
     serialized_user = UserSerializer(user).data
 
