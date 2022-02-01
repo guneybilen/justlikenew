@@ -27,11 +27,10 @@ load_dotenv(envars)
 SECRET_KEY = os.getenv('SECRET_KEY')
 REFRESH_TOKEN_SECRET = os.getenv('REFRESH_TOKEN_SECRET')
 
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.ondigitalocean.app','.localhost', '127.0.0.1', '192.168.0.165', '192.168.0.193']
+ALLOWED_HOSTS = ['.ondigitalocean.app', '.localhost', '127.0.0.1', '192.168.0.165', '192.168.0.193']
 # ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_CREDENTIALS = True
@@ -124,6 +123,32 @@ DATABASES = {
     }
 }
 
+POSTGRES_DB = os.environ.get("POSTGRES_DB")  # database name
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")  # database user password
+POSTGRES_USER = os.environ.get("POSTGRES_USER")  # database username
+POSTGRES_HOST = os.environ.get("POSTGRES_HOST")  # database host
+POSTGRES_PORT = os.environ.get("POSTGRES_PORT")  # database port
+
+POSTGRES_READY = (
+        POSTGRES_DB is not None
+        and POSTGRES_PASSWORD is not None
+        and POSTGRES_USER is not None
+        and POSTGRES_HOST is not None
+        and POSTGRES_PORT is not None
+)
+
+if POSTGRES_READY:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": POSTGRES_DB,
+            "USER": POSTGRES_USER,
+            "PASSWORD": POSTGRES_PASSWORD,
+            "HOST": POSTGRES_HOST,
+            "PORT": POSTGRES_PORT,
+        }
+    }
+    
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
