@@ -14,16 +14,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from dr import views
 from django.conf.urls.static import static
 from dr import settings
+from django.views.generic.base import RedirectView
+
+favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
 
 urlpatterns = [
       path('admin/', admin.site.urls),
       path('', include('items.urls')),
       path('api/', include('users.urls')),
+      re_path(r'^favicon\.ico$', favicon_view),
       # path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
       # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
       # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify')
