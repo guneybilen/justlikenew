@@ -142,8 +142,8 @@ def login_view(request):
     access_token = generate_access_token(user)
     refresh_token = generate_refresh_token(user)
 
-    response.set_cookie(key='refreshtoken', value=refresh_token, httponly=True)
-    response.set_cookie(key='loggedIn', value=True)
+    response.set_cookie(key='refreshtoken', value=refresh_token, secure=True, httponly=True, domain='items-fe-8xk84.ondigitalocean.app', samesite='Lax')
+    response.set_cookie(key='loggedIn', value=True, secure=True, domain='items-fe-8xk84.ondigitalocean.app', samesite='Lax')
     response.data = {
         'access_token': access_token,
         'user': serialized_user,
@@ -163,7 +163,7 @@ def logout_view(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@ensure_csrf_cookie
+@csrf_protect
 def refresh_token_view(request):
     User = get_user_model()
     refresh_token = request.COOKIES.get('refreshtoken')
