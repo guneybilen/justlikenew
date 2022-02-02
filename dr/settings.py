@@ -64,7 +64,7 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
     'auth',
     'authorization',
-    'X-CSRFToken'
+    'X-CSRFTOKEN'
 ]
 
 CSRF_TRUSTED_ORIGINS = ['https://items-fe-8xk84.ondigitalocean.app', 'http://localhost:3000']
