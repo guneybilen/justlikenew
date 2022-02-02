@@ -18,9 +18,12 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         User = get_user_model()
-        authorization_heaader = request.headers.get('auth')
+        authorization_heaader = request.headers.get('authorization')
         refresh_token = request.COOKIES.get('refreshtoken')
         access_token = authorization_heaader and authorization_heaader.split(' ')[1]
+        if authorization_heaader.startswith('Token'):
+            print('None')
+            return AnonymousUser, None
         if not access_token and not refresh_token:
             print('None')
             return AnonymousUser, None
