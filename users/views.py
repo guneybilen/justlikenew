@@ -163,7 +163,7 @@ def logout_view(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@csrf_protect
+@ensure_csrf_cookie
 def refresh_token_view(request):
     User = get_user_model()
     refresh_token = request.COOKIES.get('refreshtoken')
