@@ -48,7 +48,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8000',
     "http://127.0.0.1:8000",
     "http://127.0.0.1:3000",
-    'http://192.168.0.193:3000'
+    'http://192.168.0.193:3000',
+    'https://items-fe-8xk84.ondigitalocean.app'
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -61,8 +62,8 @@ CORS_ALLOW_HEADERS = [
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
-    'name',
     'auth',
+    'authorization'
 ]
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
