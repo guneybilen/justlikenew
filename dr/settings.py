@@ -66,7 +66,7 @@ CORS_ALLOW_HEADERS = [
     'authorization'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://items-fe-8xk84.ondigitalocean.app', 'http://localhost:3000']
 
 # Application definition
 
