@@ -142,8 +142,8 @@ def login_view(request):
     access_token = generate_access_token(user)
     refresh_token = generate_refresh_token(user)
 
-    response.set_cookie(key='refreshtoken', value=refresh_token, secure=True, httponly=True, domain='https://items-fe-8xk84.ondigitalocean.app/', samesite=None)
-    response.set_cookie(key='loggedIn', value=True, secure=True, domain='https://items-fe-8xk84.ondigitalocean.app/', samesite=None)
+    response.set_cookie(key='refreshtoken', value=refresh_token, secure=True, httponly=True, samesite=None)
+    response.set_cookie(key='loggedIn', value=True, secure=True, samesite=None)
     response.data = {
         'access_token': access_token,
         'user': serialized_user,
