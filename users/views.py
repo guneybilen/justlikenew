@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from items.permissions import IsOwnerOrReadOnly
@@ -6,9 +7,9 @@ from .serializers import UserSerializer
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
-from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from .auth import generate_access_token, generate_refresh_token
 from django.views.decorators.csrf import csrf_protect
 from django.utils.translation import gettext as _
@@ -38,7 +39,7 @@ def validate_password_strength(value):
 
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
-@ensure_csrf_cookie
+@csrf_exempt
 def users_view(request):
     # if request.method == 'GET':
     #     data = CustomUser.objects.all()
@@ -83,6 +84,7 @@ def users_view(request):
 
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsOwnerOrReadOnly])
+@csrf_exempt
 def user_detail(request, pk):
     user = CustomUser.objects.get(pk=pk)
     # print('user', user)
@@ -120,7 +122,7 @@ def user(request):
 @api_view(['POST'])
 @permission_classes([AllowAny], )
 @authentication_classes([])
-@ensure_csrf_cookie
+@csrf_exempt
 def login_view(request):
     User = get_user_model()
     username = request.data.get('email')
@@ -141,58 +143,66 @@ def login_view(request):
 
     access_token = generate_access_token(user)
     refresh_token = generate_refresh_token(user)
+    user.refresh_token = refresh_token
+    user.save()
 
-    response.set_cookie(key='refreshtoken', value=refresh_token, secure=True, httponly=True, domain='items-fe-8xk84.ondigitalocean.app', samesite=None)
-    response.set_cookie(key='loggedIn', value=True, domain='.ondigitalocean.app', samesite=None)
     response.data = {
         'access_token': access_token,
+        'refresh_token': refresh_token,
         'user': serialized_user,
     }
     return response
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny], )
-@ensure_csrf_cookie
-def logout_view(request):
-    response = Response()
-    response.delete_cookie(key='refreshtoken')
-    response.delete_cookie(key='loggedIn')
-    return response
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
-@csrf_protect
-def refresh_token_view(request):
-    User = get_user_model()
-    refresh_token = request.COOKIES.get('refreshtoken')
-    # print('users/views.py refresh_token', refresh_token)
-    if refresh_token is None:
-        # raise exceptions.AuthenticationFailed(
-        #     'Authentication credentials were not provided.')
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    try:
+@csrf_exempt
+def logout_view(request):
+    print('log_out')
+    if request.method == 'POST':
+        if request.user == AnonymousUser:
+            return Response({"access_token": None, "refresh_token": None, 'user': None},
+                            status=status.HTTP_202_ACCEPTED)
+        User = get_user_model()
+        # print("request.headers.get('refresh')", request.headers.get('refresh'))
+        if request.headers.get('refresh').endswith('null') or request.headers.get('refresh') is None:
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        refresh_token = request.headers.get('refresh').split(' ')[1]
+        # print(refresh_token)
         payload = jwt.decode(
             refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256'])
-    except jwt.ExpiredSignatureError:
-        print('users/views.py')
-        response = Response()
-        response.delete_cookie("refreshtoken")
-        response.delete_cookie("loggedIn")
-        # you canot do the following; raises ~ "Nonetype object can not have assignment error"
-        # response.data['info'] = 'expired refresh token, please login again.'
-        # response.data['status_code'] = status.HTTP_204_NO_CONTENT
-        return response
-    except jwt.InvalidSignatureError:
-        raise jwt.InvalidSignatureError(
-            'InvalidSignatureError -  tokens are not same when encoded and decoded by guney')
-    user = User.objects.filter(id=payload.get('user_id')).first()
-    if user is None:
-        raise exceptions.AuthenticationFailed('User not found')
+        user = User.objects.filter(id=payload['user_id']).first()
+        user.refresh_token = None
+        user.save()
+        return Response({"access_token": None, "refresh_token": None, 'user': None}, status=status.HTTP_202_ACCEPTED)
+    return Response(status.HTTP_400_BAD_REQUEST)
 
-    if not user.is_active:
-        raise exceptions.AuthenticationFailed('user is inactive')
 
-    access_token = generate_access_token(user)
-    return Response({'access_token': access_token, 'user_id': user.id, 'nickname': user.nickname})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def refresh_token_view(request):
+    if request.user == AnonymousUser:
+        return Response({"access_token": None, "refresh_token": None, 'user': None},
+                        status=status.HTTP_401_UNAUTHORIZED)
+    try:
+        print('user', request.user)
+        User = get_user_model()
+        user = User.objects.filter(nickname=request.user).first()
+        print('guney')
+        if not user:
+            return Response(
+                {'access_token': None, 'refresh_token': None, 'user': None, 'status': 'signin or signup'})
+
+        payload = jwt.decode(
+            user.refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256'])
+        print(payload)
+        refresh_token = generate_refresh_token(user)
+        user.refresh_token = refresh_token
+        user.save()
+        return Response(
+            {'refresh_token': refresh_token, 'user_id': user.id,
+             'nickname': user.nickname})
+    except Exception as e:
+        print("in users/view.py", e)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

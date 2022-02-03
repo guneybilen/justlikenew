@@ -18,34 +18,34 @@ class JWTAuthentication(BaseAuthentication):
 
     def authenticate(self, request):
         User = get_user_model()
-        authorization_heaader = request.headers.get('authorization')
-        refresh_token = request.COOKIES.get('refreshtoken')
-        access_token = authorization_heaader and authorization_heaader.split(' ')[1]
-        if authorization_heaader and authorization_heaader.startswith('Token'):
-            print('None')
-            return AnonymousUser, None
-        if not access_token and not refresh_token:
-            print('None')
+        authorization_heaader_access = request.headers.get('access')
+        authorization_heaader_refresh = request.headers.get('refresh')
+        access_token = authorization_heaader_access and authorization_heaader_access.split(' ')[1]
+        refresh_token = authorization_heaader_refresh and authorization_heaader_refresh.split(' ')[1]
+        if refresh_token == 'null' or refresh_token is None:
+            print('Noneeeee')
             return AnonymousUser, None
         try:
             print('verify.py')
+            print('refresh_token', refresh_token)
             payload = jwt.decode(
                 refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256']) or jwt.decode(
                 access_token, settings.SECRET_KEY, algorithms=['HS256'])
+            user = User.objects.filter(id=payload['user_id']).first()
         except jwt.ExpiredSignatureError:
             print('expired')
             return AnonymousUser, None
-
             # raise exceptions.AuthenticationFailed('access_token or refresh_token has expired')
-
-        user = User.objects.filter(id=payload['user_id']).first()
-        if user is None:
+        except User.DoesNotExist:
             raise exceptions.AuthenticationFailed('User not found')
+        # if user.refresh_token != refresh_token:
+        #     print('refresh token has been altered')
+        #     return AnonymousUser, None
 
         if not user.is_active:
             raise exceptions.AuthenticationFailed('user is inactive')
 
-        self.enforce_csrf(request)
+        # self.enforce_csrf(request)
         return (user, None)
 
     def enforce_csrf(self, request):

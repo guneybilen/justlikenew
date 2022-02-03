@@ -61,6 +61,7 @@ class CustomUser(AbstractUser):
     createdAt = models.DateTimeField(_("Registration Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Updated at"), auto_now=True)
     is_active = models.BooleanField(default=True)
+    refresh_token =models.CharField(max_length=255, null=True, default=None)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nickname']

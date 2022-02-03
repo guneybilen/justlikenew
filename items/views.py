@@ -40,14 +40,6 @@ def items_post(request):
     if request.method == 'POST' and request.user is not AnonymousUser:
         if request.user.is_active == False:
             return Response(status.HTTP_404_NOT_FOUND)
-        # if request.data['item_image1'] == 'null':
-        #     request.data["item_image1"] = ""
-        # if request.data['item_image2'] == 'null':
-        #     request.data["item_image2"] = ""
-        # if request.data['item_image3'] == 'null':
-        #     request.data["item_image3"] = ""
-        # if request.data['price'] == '':
-        #     request.data["price"] = 0
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -78,7 +70,7 @@ def items_detail(request, slug):
                 return Response(status=status.HTTP_404_NOT_FOUND)
             serializer = ItemSerializer(item, context={'request': request}, many=True)
         except Exception as e:
-            print("in items.views.py ", e);
+            print("in items.views.py ", e)
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data)
 
