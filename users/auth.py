@@ -19,7 +19,7 @@ def generate_refresh_token(user):
     refresh_token_payload = {
         'user_id': user.id,
         'nickname': user.nickname,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1),
+        # 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1),
         'iat': datetime.datetime.utcnow()
     }
     refresh_token = jwt.encode(

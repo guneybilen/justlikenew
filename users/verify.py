@@ -23,7 +23,7 @@ class JWTAuthentication(BaseAuthentication):
         access_token = authorization_heaader_access and authorization_heaader_access.split(' ')[1]
         refresh_token = authorization_heaader_refresh and authorization_heaader_refresh.split(' ')[1]
         if refresh_token == 'null' or refresh_token is None:
-            print('Noneeeee')
+            print('refresh token is null')
             return AnonymousUser, None
         try:
             print('verify.py')
@@ -32,18 +32,21 @@ class JWTAuthentication(BaseAuthentication):
                 refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256']) or jwt.decode(
                 access_token, settings.SECRET_KEY, algorithms=['HS256'])
             user = User.objects.filter(id=payload['user_id']).first()
+            if not user.is_active:
+                print('user is inactive')
+                return AnonymousUser, None
+            if user.refresh_token != refresh_token:
+                print('refresh token in db and in payload does not match')
+                user.refresh_token = None
+                return AnonymousUser, None
+        except jwt.InvalidSignatureError:
+            print('invalid signature for jwt')
+            return AnonymousUser, None
         except jwt.ExpiredSignatureError:
             print('expired')
             return AnonymousUser, None
-            # raise exceptions.AuthenticationFailed('access_token or refresh_token has expired')
         except User.DoesNotExist:
             raise exceptions.AuthenticationFailed('User not found')
-        # if user.refresh_token != refresh_token:
-        #     print('refresh token has been altered')
-        #     return AnonymousUser, None
-
-        if not user.is_active:
-            raise exceptions.AuthenticationFailed('user is inactive')
 
         # self.enforce_csrf(request)
         return (user, None)

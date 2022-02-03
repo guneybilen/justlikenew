@@ -193,16 +193,9 @@ def refresh_token_view(request):
         if not user:
             return Response(
                 {'access_token': None, 'refresh_token': None, 'user': None, 'status': 'signin or signup'})
-
-        payload = jwt.decode(
-            user.refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256'])
-        print(payload)
-        refresh_token = generate_refresh_token(user)
-        user.refresh_token = refresh_token
-        user.save()
         return Response(
-            {'refresh_token': refresh_token, 'user_id': user.id,
-             'nickname': user.nickname})
+            {'refresh_token': user.refresh_token, 'user_id': user.id,
+             'nickname': user.nickname}, status=status.HTTP_200_OK)
     except Exception as e:
         print("in users/view.py", e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
