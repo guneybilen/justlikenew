@@ -32,7 +32,7 @@ REFRESH_TOKEN_SECRET = os.getenv('REFRESH_TOKEN_SECRET')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.ondigitalocean.app', 'items-fe-8xk84.ondigitalocean.app', '.localhost', '127.0.0.1', '192.168.0.165', '192.168.0.193']
+ALLOWED_HOSTS = ['.ondigitalocean.app', 'justlikenew.shop', 'items-fe-8xk84.ondigitalocean.app', '.localhost', '127.0.0.1', '192.168.0.165', '192.168.0.193']
 # ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_CREDENTIALS = True
@@ -49,7 +49,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://127.0.0.1:3000",
     'http://192.168.0.193:3000',
-    'https://items-fe-8xk84.ondigitalocean.app'
+    'https://items-fe-8xk84.ondigitalocean.app',
+    'https://justlikenew.shop',
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -68,7 +69,7 @@ CORS_ALLOW_HEADERS = [
     'X-CSRFTOKEN'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://items-fe-8xk84.ondigitalocean.app', 'http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://justlikenew.shop', 'https://items-fe-8xk84.ondigitalocean.app', 'http://localhost:3000']
 
 # Application definition
 
