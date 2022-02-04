@@ -26,8 +26,7 @@ class JWTAuthentication(BaseAuthentication):
             print('refresh token is null')
             return AnonymousUser, None
         try:
-            print('verify.py')
-            print('refresh_token', refresh_token)
+            # print('verify.py')
             payload = jwt.decode(
                 refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256']) or jwt.decode(
                 access_token, settings.SECRET_KEY, algorithms=['HS256'])

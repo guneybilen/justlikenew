@@ -11,7 +11,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAu
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from .auth import generate_access_token, generate_refresh_token
-from django.views.decorators.csrf import csrf_protect
 from django.utils.translation import gettext as _
 import jwt
 from django.conf import settings
@@ -37,20 +36,12 @@ def validate_password_strength(value):
     return None
 
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 @permission_classes([AllowAny])
 @csrf_exempt
 def users_view(request):
-    # if request.method == 'GET':
-    #     data = CustomUser.objects.all()
-    #
-    #     serializer = UserSerializer(data, context={'request': request}, many=True)
-    #
-    #     return Response(serializer.data)
-
     if request.method == 'POST':
         User = get_user_model()
-        # print(request.data)
         username = request.data.get('email')
         password = request.data.get('password')
         passwordConfirm = request.data.get('passwordConfirm')
@@ -87,7 +78,6 @@ def users_view(request):
 @csrf_exempt
 def user_detail(request, pk):
     user = CustomUser.objects.get(pk=pk)
-    # print('user', user)
     if not user:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -132,7 +122,6 @@ def login_view(request):
         raise exceptions.AuthenticationFailed(
             'username and password required')
 
-    # user = User.objects.filter(username=username).first()
     user = User.objects.filter(email=username).first()
     if (user is None):
         raise exceptions.AuthenticationFailed('user not found')
@@ -158,17 +147,14 @@ def login_view(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def logout_view(request):
-    print('log_out')
     if request.method == 'POST':
         if request.user == AnonymousUser:
             return Response({"access_token": None, "refresh_token": None, 'user': None},
                             status=status.HTTP_202_ACCEPTED)
         User = get_user_model()
-        # print("request.headers.get('refresh')", request.headers.get('refresh'))
         if request.headers.get('refresh').endswith('null') or request.headers.get('refresh') is None:
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
         refresh_token = request.headers.get('refresh').split(' ')[1]
-        # print(refresh_token)
         payload = jwt.decode(
             refresh_token, settings.REFRESH_TOKEN_SECRET, algorithms=['HS256'])
         user = User.objects.filter(id=payload['user_id']).first()
@@ -186,10 +172,8 @@ def refresh_token_view(request):
         return Response({"access_token": None, "refresh_token": None, 'user': None},
                         status=status.HTTP_401_UNAUTHORIZED)
     try:
-        print('user', request.user)
         User = get_user_model()
         user = User.objects.filter(nickname=request.user).first()
-        print('guney')
         if not user:
             return Response(
                 {'access_token': None, 'refresh_token': None, 'user': None, 'status': 'signin or signup'})
