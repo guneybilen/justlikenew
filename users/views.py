@@ -93,7 +93,8 @@ def user_detail(request, pk):
         serializer = UserSerializer(user, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            refresh_token_view(request)
+            # return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
@@ -119,15 +120,16 @@ def login_view(request):
     password = request.data.get('password')
     response = Response()
     if (username is None) or (password is None):
-        raise exceptions.AuthenticationFailed(
-            'username and password required')
+        print('username and password required')
+        return Response({'status': 401})
 
     user = User.objects.filter(email=username).first()
     if (user is None):
-        raise exceptions.AuthenticationFailed('user not found')
+        print('user not found')
+        return Response({'status': 403})
     if (not user.check_password(password)):
-        raise exceptions.AuthenticationFailed('wrong email or wrong password')
-
+        print('wrong email or wrong password')
+        return Response({'status': 403})
     serialized_user = UserSerializer(user).data
 
     access_token = generate_access_token(user)
