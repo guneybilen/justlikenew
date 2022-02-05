@@ -19,3 +19,5 @@
 [2022-02-05 01:52:58 +0000] [76885] [INFO] Worker reloading: /home/bilen/PycharmProjects/djangoreact/dr/wsgi.py modified
 [2022-02-05 01:52:58 +0000] [76885] [INFO] Worker exiting (pid: 76885)
 [2022-02-04 20:52:58 -0500] [78205] [INFO] Booting worker with pid: 78205
+[2022-02-05 01:58:16 +0000] [78287] [INFO] Worker reloading: /home/bilen/PycharmProjects/djangoreact/dr/settings.py modified
+[2022-02-05 01:58:16 +0000] [78287] [INFO] Worker exiting (pid: 78287)
