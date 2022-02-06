@@ -32,7 +32,8 @@ REFRESH_TOKEN_SECRET = os.getenv('REFRESH_TOKEN_SECRET')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.ondigitalocean.app', 'justlikenew.shop', 'items-fe-8xk84.ondigitalocean.app', '.localhost', '127.0.0.1', '192.168.0.165', '192.168.0.193']
+ALLOWED_HOSTS = ['.ondigitalocean.app', 'justlikenew.shop', 'items-fe-8xk84.ondigitalocean.app', '.localhost',
+                 '127.0.0.1', '192.168.0.165', '192.168.0.193']
 # ALLOWED_HOSTS = ['*']
 
 CORS_ALLOW_CREDENTIALS = True
@@ -69,7 +70,8 @@ CORS_ALLOW_HEADERS = [
     'X-CSRFTOKEN'
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://justlikenew.shop', 'https://items-fe-8xk84.ondigitalocean.app', 'http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://justlikenew.shop', 'https://items-fe-8xk84.ondigitalocean.app',
+                        'http://localhost:3000']
 
 # Application definition
 
@@ -86,6 +88,7 @@ INSTALLED_APPS = [
     'corsheaders',  # new
     'items',
     'users',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [
@@ -157,7 +160,7 @@ if POSTGRES_READY:
             "PORT": POSTGRES_PORT,
         }
     }
-    
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -215,7 +218,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
 sentry_sdk.init(
     dsn="https://2bef424d263447ef829524443af6bdaa@o1133179.ingest.sentry.io/6179720",
     integrations=[DjangoIntegration()],
@@ -229,3 +231,6 @@ sentry_sdk.init(
     # django.contrib.auth) you may enable sending PII data.
     send_default_pii=True
 )
+
+#limit per image file
+LIMIT_MB = 10

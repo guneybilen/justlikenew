@@ -40,11 +40,13 @@ def items_post(request):
     if request.method == 'POST' and request.user is not AnonymousUser:
         if request.user.is_active == False:
             return Response(status.HTTP_404_NOT_FOUND)
+        if not request.data['brand']  or not request.data['model']:
+            print('brand and model are both required')
+            return Response({"error": "brand and model entries are required"})
         serializer = ItemSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return Response(status.HTTP_400_BAD_REQUEST)
 

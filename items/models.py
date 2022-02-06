@@ -1,11 +1,23 @@
+from unicodedata import decimal
+
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
 from users.models import CustomUser
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from io import StringIO
+from PIL import Image
+from io import BytesIO
 
-import uuid
 
+def validate_image(image):
+    print('incoming image.size is :', image.size)
+    file_size = image.size
+    limit_MB = settings.LIMIT_MB
+    if file_size > limit_MB * 1024000:
+        raise ValidationError("max image size is has to be less than %s MB" % limit_MB)
 
 class Item(models.Model):
     brand = models.CharField(_("Name"), max_length=240)
@@ -17,9 +29,9 @@ class Item(models.Model):
     createdAt = models.DateTimeField(_("Item Listing Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Item Updated at"), auto_now=True)
     slug = models.SlugField("Slug", null=False, blank=True, db_index=True, unique=True)
-    item_image1 = models.ImageField(null=True, default=None, upload_to='images/')
-    item_image2 = models.ImageField(null=True, default=None, upload_to='images/')
-    item_image3 = models.ImageField(null=True, default=None, upload_to='images/')
+    item_image1 = models.ImageField(null=True, default=None, upload_to='images/', validators=[validate_image])
+    item_image2 = models.ImageField(null=True, default=None, upload_to='images/', validators=[validate_image])
+    item_image3 = models.ImageField(null=True, default=None, upload_to='images/', validators=[validate_image])
 
     def __str__(self):
         return "{} {} by {}".format(self.brand, self.model, self.seller)
@@ -32,7 +44,6 @@ class Item(models.Model):
     def get_user_id(self):
         return self.seller.id
 
-
     # Relegated the followings to serializers.
     # def __init__(self, *args, **kwargs):
     #     super(Item, self).__init__(*args, **kwargs)
@@ -41,11 +52,6 @@ class Item(models.Model):
     #     self.__original_price = self.price
     #     self.__original_entry = self.entry
     #
-    # def clean(self, *args, **kwargs):
-    #     if self.__original_brand == self.brand and self.__original_model == self.model and self.__original_price == self.price and self.__original_entry == self.entry:
-    #         return None
-    #     else:
-    #         return True
 
     def save(self, *args, **kwargs):
         # result = self.full_clean()
