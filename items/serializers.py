@@ -33,7 +33,7 @@ class ItemSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.brand = validated_data.get('brand', instance.brand)
         instance.model = validated_data.get('model', instance.model)
-        instance.price = validated_data.get('price', instance.price)
+        # instance.price = validated_data.get('price', instance.price)
         instance.entry = validated_data.get('entry', instance.entry)
         instance.item_image1 = validated_data.get('item_image1', instance.item_image1)
         instance.item_image2 = validated_data.get('item_image2', instance.item_image2)

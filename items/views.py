@@ -11,6 +11,7 @@ from dr import settings
 from .serializers import *
 from users.verify import *
 
+
 def clear_nulls(request):
     if request.data['item_image1'] == 'null':
         request.data["item_image1"] = ""
@@ -19,6 +20,7 @@ def clear_nulls(request):
     if request.data['item_image3'] == 'null':
         request.data["item_image3"] = ""
     return request
+
 
 @api_view(['GET'])
 @authentication_classes([])
@@ -40,7 +42,7 @@ def items_post(request):
     if request.method == 'POST' and request.user is not AnonymousUser:
         if request.user.is_active == False:
             return Response(status.HTTP_404_NOT_FOUND)
-        if not request.data['brand']  or not request.data['model']:
+        if not request.data['brand'] or not request.data['model']:
             print('brand and model are both required')
             return Response({"error": "brand and model entries are required"})
         serializer = ItemSerializer(data=request.data)
@@ -67,9 +69,6 @@ def items_detail(request, slug):
 
     if request.method == 'GET':
         try:
-            # item_with_slug = Item.objects.filter(slug=slug).first()
-            if not item:
-                return Response(status=status.HTTP_404_NOT_FOUND)
             serializer = ItemSerializer(item, context={'request': request}, many=True)
         except Exception as e:
             print("in items.views.py ", e)
@@ -77,16 +76,22 @@ def items_detail(request, slug):
         return Response(serializer.data)
 
     if request.method == 'PUT':
-        # if request.data['item_image1'] == 'null':
-        #     request.data["item_image1"] = ""
-        # if request.data['item_image2'] == 'null':
-        #     request.data["item_image2"] = ""
-        # if request.data['item_image3'] == 'null':
-        #     request.data["item_image3"] = ""
-        # if request.data['price'] == '':
-        #     request.data["price"] = 0
-        # cleared_data = clear_nulls(request)
+        if request.user.is_active == False:
+            return Response(status.HTTP_404_NOT_FOUND)
+        if not request.data['brand'] or not request.data['model']:
+            print('brand and model are both required')
+            return Response({"error": "brand and model entries are required"})
+
         item = Item.objects.filter(slug=slug).first()
+        if request.data['deleteImage1'] == 'true':
+            print('here1')
+            item.item_image1 = None
+        if request.data['deleteImage2'] == 'true':
+            print('here2')
+            item.item_image2 = None
+        if request.data['deleteImage3'] == 'true':
+            print('here3')
+            item.item_image3 = None
         serializer = ItemSerializer(item, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
