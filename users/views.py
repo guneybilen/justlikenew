@@ -1,10 +1,12 @@
+import datetime
+
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from items.permissions import IsOwnerOrReadOnly
-from .models import CustomUser
 from .serializers import UserSerializer
 from rest_framework.response import Response
+from users.models import CustomUser
 from django.contrib.auth import get_user_model
 from rest_framework import exceptions
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
@@ -40,12 +42,15 @@ def validate_password_strength(value):
 @permission_classes([AllowAny])
 @csrf_exempt
 def users_view(request):
+    print(request.data)
     if request.method == 'POST':
         User = get_user_model()
         username = request.data.get('email')
         password = request.data.get('password')
         passwordConfirm = request.data.get('passwordConfirm')
         nickname = request.data.get('nickname')
+        s_name = request.data.get('s_name')
+        s_answer = request.data.get('s_answer')
         if (username is None) or (password is None) or (passwordConfirm is None) or (nickname is None):
             return Response({"message": 'username, password, password information, and nickname are required'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -66,6 +71,12 @@ def users_view(request):
         if password != passwordConfirm:
             raise exceptions.AuthenticationFailed(
                 'password and password confirmation needs to be the same value')
+
+        print('s_name', s_name)
+        if s_name not in [(tag.name) for tag in CustomUser().SecurityType]:
+            raise exceptions.AuthenticationFailed(
+                'security question has to be one of them that is in db')
+
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -185,3 +196,11 @@ def refresh_token_view(request):
     except Exception as e:
         print("in users/view.py", e)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def get_security_questions(request):
+    return Response({"names":[(tag.name) for tag in CustomUser().SecurityType],
+                    "values": [(tag.value) for tag in CustomUser().SecurityType]})

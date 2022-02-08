@@ -1,11 +1,11 @@
 # users/models.py
-# from django.contrib.auth.models import AbstractUser
-# from django.db import models
 # from django.contrib.auth.hashers import make_password
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+
+from enum import Enum
 
 
 class CustomUserManager(BaseUserManager):
@@ -52,6 +52,40 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
+    class SecurityType(Enum):
+        CITY = "In what city were you born?"
+        PET = "What is the name of your favorite pet?"
+        MAIDEN = "What is your mother's maiden name?"
+        SCHOOL = "What is the name of your first school?"
+        CAR = "What was the make of your first car?"
+        FOOD = "What was your favorite food as a child?"
+
+        # @classmethod
+        # def get_value(cls, member):
+        #     return cls[member].value[0]
+        #
+        # @classmethod
+        # def get_displayname(cls, member):
+        #     return cls[member].value[1]
+
+        # @classmethod
+        # def get_displaynames(cls):
+        #     return [cls['CITY'].value[0],
+        #             cls['PET'].value[0],
+        #             cls['MAIDEN'].value[0],
+        #             cls['SCHOOL'].value[0],
+        #             cls['CAR'].value[0],
+        #             cls['FOOD'].value[0]]
+        #
+        # @classmethod
+        # def get_all(cls):
+        #     return [{cls['CITY'].value[0]: cls['CITY'].value[1]},
+        #             {cls['PET'].value[0]: cls['PET'].value[1]},
+        #             {cls['MAIDEN'].value[0]: cls['MAIDEN'].value[1]},
+        #             {cls['SCHOOL'].value[0]: cls['SCHOOL'].value[1]},
+        #             {cls['CAR'].value[0]: cls['CAR'].value[1]},
+        #             {cls['FOOD'].value[0]: cls['FOOD'].value[1]}]
+
     username = None
     first_name = models.CharField(_("First Name"), max_length=100)
     last_name = models.CharField(_("Last Name"), max_length=100)
@@ -61,7 +95,9 @@ class CustomUser(AbstractUser):
     createdAt = models.DateTimeField(_("Registration Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Updated at"), auto_now=True)
     is_active = models.BooleanField(default=True)
-    refresh_token =models.CharField(max_length=255, null=True, default=None)
+    s_name = models.CharField(max_length=50, null=True, choices=[(x.name, x.value) for x in SecurityType])
+    s_answer = models.CharField(max_length=100)
+    refresh_token = models.CharField(max_length=255, null=True, default=None)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nickname']
