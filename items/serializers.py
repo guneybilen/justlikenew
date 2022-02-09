@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('nickname')
-        # read_only_fields = ('is_active', 'is_staff')
+        read_only_fields = ('is_active', 'is_staff')
 
     def to_representation(self, value):
         return value.nickname

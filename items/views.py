@@ -84,13 +84,10 @@ def items_detail(request, slug):
 
         item = Item.objects.filter(slug=slug).first()
         if request.data['deleteImage1'] == 'true':
-            print('here1')
             item.item_image1 = None
         if request.data['deleteImage2'] == 'true':
-            print('here2')
             item.item_image2 = None
         if request.data['deleteImage3'] == 'true':
-            print('here3')
             item.item_image3 = None
         serializer = ItemSerializer(item, data=request.data, context={'request': request})
         if serializer.is_valid():

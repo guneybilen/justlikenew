@@ -51,7 +51,10 @@ def users_view(request):
         nickname = request.data.get('nickname')
         s_name = request.data.get('s_name')
         s_answer = request.data.get('s_answer')
-        if (username == '') or (password == '') or (passwordConfirm == '') or (nickname == '') or (s_answer == ''):
+
+        if (username in [None, '', 'nul']) or (password in [None, '', 'nul']) or (
+                passwordConfirm in [None, '', 'nul']) or (nickname in [None, '', 'nul']) or (
+                s_answer in [None, '', 'nul']):
             return Response({"message": 'username, password, nickname and security answer are required'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
@@ -59,6 +62,7 @@ def users_view(request):
         if forEmailCheck:
             return Response({"message": 'email in use'},
                             status=status.HTTP_409_CONFLICT)
+
         forNickNameCheck = User.objects.filter(nickname=nickname).exists()
         if forNickNameCheck:
             return Response({"message": 'nickname in use'}, status=status.HTTP_409_CONFLICT)
@@ -73,8 +77,8 @@ def users_view(request):
                 'password and password confirmation needs to be the same value')
 
         if s_answer == '':
-            return Response({"message":  'security question and security answer must be provided'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
+            return Response({"message": 'security question and security answer must be provided'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
 
         if s_name not in [(tag.name) for tag in CustomUser().SecurityType]:
             return Response({"message": 'security question must be selected'},
@@ -133,7 +137,7 @@ def login_view(request):
     username = request.data.get('email')
     password = request.data.get('password')
     response = Response()
-    if (username is None) or (password is None):
+    if (username in [None, '', 'nul']) or (password in [None, '', 'nul']):
         print('username and password required')
         return Response({'status': 401})
 
@@ -205,5 +209,5 @@ def refresh_token_view(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def get_security_questions(request):
-    return Response({"names":[(tag.name) for tag in CustomUser().SecurityType],
-                    "values": [(tag.value) for tag in CustomUser().SecurityType]})
+    return Response({"names": [(tag.name) for tag in CustomUser().SecurityType],
+                     "values": [(tag.value) for tag in CustomUser().SecurityType]})
