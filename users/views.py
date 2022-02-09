@@ -51,8 +51,8 @@ def users_view(request):
         nickname = request.data.get('nickname')
         s_name = request.data.get('s_name')
         s_answer = request.data.get('s_answer')
-        if (username is None) or (password is None) or (passwordConfirm is None) or (nickname is None):
-            return Response({"message": 'username, password, password information, and nickname are required'},
+        if (username == '') or (password == '') or (passwordConfirm == '') or (nickname == '') or (s_answer == ''):
+            return Response({"message": 'username, password, nickname and security answer are required'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
         forEmailCheck = User.objects.filter(email=username).exists()
@@ -72,10 +72,13 @@ def users_view(request):
             raise exceptions.AuthenticationFailed(
                 'password and password confirmation needs to be the same value')
 
-        print('s_name', s_name)
+        if s_answer == '':
+            return Response({"message":  'security question and security answer must be provided'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
         if s_name not in [(tag.name) for tag in CustomUser().SecurityType]:
-            raise exceptions.AuthenticationFailed(
-                'security question has to be one of them that is in db')
+            return Response({"message": 'security question must be selected'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
 
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
