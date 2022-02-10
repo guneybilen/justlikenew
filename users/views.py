@@ -1,8 +1,9 @@
 import datetime
 
+import bcrypt
 from django.contrib.auth.models import AnonymousUser
 from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import status
 from items.permissions import IsOwnerOrReadOnly
 from .serializers import UserSerializer
@@ -17,6 +18,7 @@ from .auth import generate_access_token, generate_refresh_token, generate_reset_
 from django.utils.translation import gettext as _
 import jwt
 from django.conf import settings
+import sha512_crypt
 
 
 def validate_password_strength(value):
@@ -220,7 +222,6 @@ def get_security_questions(request):
 def passwordreset(request):
     if request.method == 'POST':
         email = request.data.get('username')
-        print ('email', email)
         if email in [None, '', 'null']:
             return Response({"state": 'please enter your email address'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -229,9 +230,9 @@ def passwordreset(request):
         if not user:
             print('no user with this email')
             return Response(
-                {'state': "if there is an account associated with this email we will send a password reset email"})
+                {'state': "if there is an account associated with this email we will send an email"})
         subject = 'justlikenew.shop - Password Reset Email'
-        reset_token = generate_reset_token()
+        reset_token = generate_reset_token(user)
         message = """Please follow the link below for resetting you password 
                      http://localhost:3000/newpassword/{reset_token}
                      
@@ -244,5 +245,78 @@ def passwordreset(request):
         recepient = str(email)
         send_mail(subject,
                   message, 'a@a.com', [recepient], fail_silently=False)
-        return Response( {'state': "if there is an account associated with this email we will send a password"})
+        return Response({'state': "if there is an account associated with this email we will send an email"})
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def getsecretquestion(request, token):
+    if request.method == 'POST':
+        token = request.data.get('token')
+        if token in [None, '', 'null']:
+            return Response({"state": 'sent data must had had a token'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    try:
+        payload = jwt.decode(
+            token, settings.GENERATE_RESET_TOKEN, algorithms=['HS256'])
+    except jwt.exceptions.InvalidSignatureError:
+        return Response({"state": 'token has invalid signature.'},
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+    except jwt.exceptions.ExpiredSignatureError:
+        return Response({"state": 'token is expired please request again.'},
+                        status=status.HTTP_408_REQUEST_TIMEOUT)
+    user = CustomUser.objects.filter(id=payload['user_id']).first()
+    print(user)
+
+    print(user.s_name)
+    if user:
+        return Response({"secretquestion": CustomUser.SecurityType[user.s_name].value})
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def passwordresetcomplete(request):
+    if request.method == 'POST':
+        password = request.data.get('password')
+        passwordConfirm = request.data.get('passwordConfirm')
+        token = request.data.get('token')
+        answer = request.data.get('answer')
+
+        if password in [None, '', 'null'] or passwordConfirm in [None, '', 'null'] or answer in [None, '', 'null']:
+            return Response({"state": 'please provide all the information'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        if password != passwordConfirm:
+            return Response({"state": 'password and password confirmation do not match'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        result = validate_password_strength(password)
+
+        if result is not None:
+            return Response({"state": result}, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        try:
+            payload = jwt.decode(
+                token, settings.GENERATE_RESET_TOKEN, algorithms=['HS256'])
+        except jwt.exceptions.InvalidSignatureError:
+            return Response({"state": 'token has invalid signature.'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        except jwt.exceptions.ExpiredSignatureError:
+            return Response({"state": 'token is expired please request again.'},
+                            status=status.HTTP_408_REQUEST_TIMEOUT)
+
+        user = CustomUser.objects.filter(id=payload['user_id']).first()
+
+        if sha512_crypt.verify(answer.strip(), user.s_answer):
+            print("It Matches!")
+            user.set_password(password)
+            user.save()
+            return Response({'state': 'password is changed'})
+        else:
+            print("It Does not Match :(")
+            return Response({"state": "security question's answer does not match with our database records"},
+                            status=status.HTTP_401_UNAUTHORIZED)

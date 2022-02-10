@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
 from .models import CustomUser
-import bcrypt
+import sha512_crypt
 
 
 class UserSerializer(ModelSerializer):
@@ -23,7 +23,20 @@ class UserSerializer(ModelSerializer):
         nickname = validated_data.get('nickname')
         str = validated_data.get('s_answer')
         s_name = validated_data.get('s_name')
-        answer = b"str"
-        s_answer = bcrypt.hashpw(answer, bcrypt.gensalt())
+
+        hashed = sha512_crypt.encrypt(str)
+
         return CustomUser.objects.create_user(email=email, password=password,
-                                              nickname=nickname, s_name=s_name, s_answer=s_answer)
+                                              nickname=nickname, s_name=s_name,
+                                              s_answer=hashed)
+
+    def update(self, instance, validated_data):
+        # instance.brand = validated_data.get('brand', instance.brand)
+        # instance.model = validated_data.get('model', instance.model)
+        # instance.price = validated_data.get('price', instance.price)
+        # instance.entry = validated_data.get('entry', instance.entry)
+        # instance.item_image1 = validated_data.get('item_image1', instance.item_image1)
+        # instance.item_image2 = validated_data.get('item_image2', instance.item_image2)
+        # instance.item_image3 = validated_data.get('item_image3', instance.item_image3)
+        # instance.seller = validated_data.get('seller', instance.seller)
+        return super().update(instance, validated_data)

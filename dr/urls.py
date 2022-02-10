@@ -34,9 +34,6 @@ urlpatterns = [
     path('api/', include('users.urls')),
     re_path(r'^favicon\.ico$', favicon_view),
     path('sentry-debug/', trigger_error),
-    # path('api/token/', views.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify')
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

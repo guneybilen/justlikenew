@@ -60,31 +60,14 @@ class CustomUser(AbstractUser):
         CAR = "What was the make of your first car?"
         FOOD = "What was your favorite food as a child?"
 
-        # @classmethod
-        # def get_value(cls, member):
-        #     return cls[member].value[0]
-        #
-        # @classmethod
-        # def get_displayname(cls, member):
-        #     return cls[member].value[1]
+        @classmethod
+        def get_value(cls, member):
+            return cls[member].value[0]
 
-        # @classmethod
-        # def get_displaynames(cls):
-        #     return [cls['CITY'].value[0],
-        #             cls['PET'].value[0],
-        #             cls['MAIDEN'].value[0],
-        #             cls['SCHOOL'].value[0],
-        #             cls['CAR'].value[0],
-        #             cls['FOOD'].value[0]]
-        #
-        # @classmethod
-        # def get_all(cls):
-        #     return [{cls['CITY'].value[0]: cls['CITY'].value[1]},
-        #             {cls['PET'].value[0]: cls['PET'].value[1]},
-        #             {cls['MAIDEN'].value[0]: cls['MAIDEN'].value[1]},
-        #             {cls['SCHOOL'].value[0]: cls['SCHOOL'].value[1]},
-        #             {cls['CAR'].value[0]: cls['CAR'].value[1]},
-        #             {cls['FOOD'].value[0]: cls['FOOD'].value[1]}]
+        @classmethod
+        def get_displayname(cls, member):
+            return cls[member].value[1]
+
 
     username = None
     first_name = models.CharField(_("First Name"), max_length=100)
@@ -95,7 +78,7 @@ class CustomUser(AbstractUser):
     createdAt = models.DateTimeField(_("Registration Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Updated at"), auto_now=True)
     is_active = models.BooleanField(default=True)
-    s_name = models.CharField(max_length=50, null=True, choices=[(x.name, x.value) for x in SecurityType])
+    s_name = models.CharField(max_length=50, choices=[(x.name, x.value) for x in SecurityType])
     s_answer = models.CharField(max_length=100)
     refresh_token = models.CharField(max_length=255, null=True, default=None)
 
