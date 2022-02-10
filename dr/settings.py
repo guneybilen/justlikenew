@@ -28,6 +28,7 @@ load_dotenv(envars)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 REFRESH_TOKEN_SECRET = os.getenv('REFRESH_TOKEN_SECRET')
+GENERATE_RESET_TOKEN = os.getenv('GENERATE_RESET_TOKEN')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -194,7 +195,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
@@ -232,5 +233,17 @@ sentry_sdk.init(
     send_default_pii=True
 )
 
-#limit per image file
+# limit per image file
 LIMIT_MB = 10
+
+
+EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+EMAIL_FILE_PATH = str(BASE_DIR.joinpath('sent_emails'))
+
+
+# EMAIL_BACKEND = ‘django.core.mail.backends.smtp.EmailBackend’
+# EMAIL_HOST = ‘smtp.gmail.com’
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = ‘your_account@gmail.com’
+# EMAIL_HOST_PASSWORD = ‘your account’s password’

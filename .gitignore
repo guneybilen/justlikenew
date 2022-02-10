@@ -193,3 +193,5 @@ access.txt
 errors.txt
 
 .idea/
+
+/sent_emails/

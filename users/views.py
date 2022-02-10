@@ -1,6 +1,7 @@
 import datetime
 
 from django.contrib.auth.models import AnonymousUser
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from items.permissions import IsOwnerOrReadOnly
@@ -12,7 +13,7 @@ from rest_framework import exceptions
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from .auth import generate_access_token, generate_refresh_token
+from .auth import generate_access_token, generate_refresh_token, generate_reset_token
 from django.utils.translation import gettext as _
 import jwt
 from django.conf import settings
@@ -211,3 +212,37 @@ def refresh_token_view(request):
 def get_security_questions(request):
     return Response({"names": [(tag.name) for tag in CustomUser().SecurityType],
                      "values": [(tag.value) for tag in CustomUser().SecurityType]})
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def passwordreset(request):
+    if request.method == 'POST':
+        email = request.data.get('username')
+        print ('email', email)
+        if email in [None, '', 'null']:
+            return Response({"state": 'please enter your email address'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        user = CustomUser.objects.filter(email=email).first()
+        if not user:
+            print('no user with this email')
+            return Response(
+                {'state': "if there is an account associated with this email we will send a password reset email"})
+        subject = 'justlikenew.shop - Password Reset Email'
+        reset_token = generate_reset_token()
+        message = """Please follow the link below for resetting you password 
+                     http://localhost:3000/newpassword/{reset_token}
+                     
+                     If you can not follow the link just copy the link and go to the url address.
+                     
+                     Thanks,
+                     - justlikenew.shop team
+                     """.format(reset_token=reset_token)
+
+        recepient = str(email)
+        send_mail(subject,
+                  message, 'a@a.com', [recepient], fail_silently=False)
+        return Response( {'state': "if there is an account associated with this email we will send a password"})
+    return Response(status=status.HTTP_400_BAD_REQUEST)
