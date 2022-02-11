@@ -1,6 +1,3 @@
-import datetime
-
-import bcrypt
 from django.contrib.auth.models import AnonymousUser
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect
