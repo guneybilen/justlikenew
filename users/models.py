@@ -77,7 +77,7 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(_("Phone Number"), max_length=50)
     createdAt = models.DateTimeField(_("Registration Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Updated at"), auto_now=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     s_name = models.CharField(max_length=50, choices=[(x.name, x.value) for x in SecurityType])
     s_answer = models.CharField(max_length=100)
     refresh_token = models.CharField(max_length=255, null=True, default=None)

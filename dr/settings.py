@@ -29,6 +29,7 @@ load_dotenv(envars)
 SECRET_KEY = os.getenv('SECRET_KEY')
 REFRESH_TOKEN_SECRET = os.getenv('REFRESH_TOKEN_SECRET')
 GENERATE_RESET_TOKEN = os.getenv('GENERATE_RESET_TOKEN')
+GENERATE_ACTIVATE_TOKEN = os.getenv('GENERATE_ACTIVATE_TOKEN')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

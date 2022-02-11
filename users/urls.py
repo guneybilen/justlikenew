@@ -14,7 +14,8 @@ from django.urls import path
 from users import views
 from .views import login_view, refresh_token_view, logout_view, \
     users_view, get_security_questions, passwordreset, \
-    getsecretquestion, passwordresetcomplete
+    getsecretquestion, passwordresetcomplete, accountactivate, \
+    accountactivaterepeatrequest
 
 urlpatterns = [
     # path('', include("django.contrib.auth.urls")),
@@ -28,5 +29,6 @@ urlpatterns = [
     path('passwordreset/', passwordreset, name='resetpassword'),
     path('secretquestion/<str:token>/', getsecretquestion, name='secretquestion'),
     path('passwordresetcomplete/', passwordresetcomplete, name='passwordresetcomplete'),
-
+    path('activateaccount/<str:token>/', accountactivate, name='activateaccount'),
+    path('repeatactivate/', accountactivaterepeatrequest, name='repeatactivate'),
 ]

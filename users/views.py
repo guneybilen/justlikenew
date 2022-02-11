@@ -11,7 +11,7 @@ from rest_framework import exceptions
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
-from .auth import generate_access_token, generate_refresh_token, generate_reset_token
+from .auth import generate_access_token, generate_refresh_token, generate_reset_token, generate_activate_account_token
 from django.utils.translation import gettext as _
 import jwt
 from django.conf import settings
@@ -73,8 +73,8 @@ def users_view(request):
             return Response({"message": result}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
         if password != passwordConfirm:
-            raise exceptions.AuthenticationFailed(
-                'password and password confirmation needs to be the same value')
+            return Response({"message": 'password and password confirmation needs to be the same value'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
 
         if s_answer == '':
             return Response({"message": 'security question and security answer must be provided'},
@@ -87,6 +87,22 @@ def users_view(request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            user = CustomUser.objects.filter(email=username).first()
+            user.save()
+            activate_token = generate_activate_account_token(user)
+            subject = 'justlikenew.shop - Verify Your Email'
+            message = """Please follow the link below for activating your account 
+                                    http://localhost:3000/activation/{activate_token}
+
+                                    If you can not follow the link just copy the link and go to the url address.
+
+                                    Thanks,
+                                    - justlikenew.shop team
+                                    """.format(activate_token=activate_token)
+
+            recepient = str(username)
+            send_mail(subject,
+                      message, 'a@a.com', [recepient], fail_silently=False)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -144,10 +160,13 @@ def login_view(request):
     user = User.objects.filter(email=username).first()
     if (user is None):
         print('user not found')
-        return Response({'status': 403})
+        return Response({'status': 401})
     if (not user.check_password(password)):
         print('wrong email or wrong password')
+        return Response({'status': 401})
+    if user.is_active == False:
         return Response({'status': 403})
+
     serialized_user = UserSerializer(user).data
 
     access_token = generate_access_token(user)
@@ -265,9 +284,7 @@ def getsecretquestion(request, token):
         return Response({"state": 'token is expired please request again.'},
                         status=status.HTTP_408_REQUEST_TIMEOUT)
     user = CustomUser.objects.filter(id=payload['user_id']).first()
-    print(user)
 
-    print(user.s_name)
     if user:
         return Response({"secretquestion": CustomUser.SecurityType[user.s_name].value})
     return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -317,3 +334,53 @@ def passwordresetcomplete(request):
             print("It Does not Match :(")
             return Response({"state": "security question's answer does not match with our database records"},
                             status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def accountactivate(request, token):
+    if request.method == 'POST':
+        token = request.data.get('token')
+
+        try:
+            payload = jwt.decode(
+                token, settings.GENERATE_RESET_TOKEN, algorithms=['HS256'])
+        except jwt.exceptions.InvalidSignatureError:
+            return Response({"state": 'token has invalid signature.'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        except jwt.exceptions.ExpiredSignatureError:
+            return Response({"state": 'token is expired please request again.'},
+                            status=status.HTTP_408_REQUEST_TIMEOUT)
+
+        user = CustomUser.objects.filter(id=payload['user_id']).first()
+        user.is_active = True
+        user.save()
+        return Response({"state": 'activation successfully completed.'},
+                        status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def accountactivaterepeatrequest(request):
+    username = request.data.get('username')
+
+    user = CustomUser.objects.filter(email=username).first()
+    activate_token = generate_activate_account_token(user)
+    subject = 'justlikenew.shop - Verify Your Email'
+    message = """Please follow the link below for activating your account 
+                                       http://localhost:3000/activation/{activate_token}
+
+                                       If you can not follow the link just copy the link and go to the url address.
+
+                                       Thanks,
+                                       - justlikenew.shop team
+                                       """.format(activate_token=activate_token)
+
+    recepient = str(username)
+    send_mail(subject,
+              message, 'a@a.com', [recepient], fail_silently=False)
+    return Response({"state": 'We just sent you an email. Please, check your email ' +
+                              'inbox follow the link in order to activate your account'},
+                    status=status.HTTP_201_CREATED)

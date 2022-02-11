@@ -28,10 +28,22 @@ def generate_refresh_token(user):
 def generate_reset_token(user):
     reset_token_payload = {
         'user_id': user.id,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10),
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30),
         'iat': datetime.datetime.utcnow()
     }
-    reset_token_payload = jwt.encode(
-        reset_token_payload, settings.GENERATE_RESET_TOKEN, algorithm='HS256')
+    activate_token = jwt.encode(
+        reset_token_payload, settings.GENERATE_ACTIVATE_TOKEN, algorithm='HS256')
 
-    return reset_token_payload
+    return activate_token
+
+
+def generate_activate_account_token(user):
+    activate_token_payload = {
+        'user_id': user.id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(weeks=1),
+        'iat': datetime.datetime.utcnow()
+    }
+    activate_token_payload = jwt.encode(
+        activate_token_payload, settings.GENERATE_RESET_TOKEN, algorithm='HS256')
+
+    return activate_token_payload
