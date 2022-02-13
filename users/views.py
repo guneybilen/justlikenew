@@ -421,7 +421,7 @@ def userupdate(request):
             if forNickNameCheck:
                 return Response({"message": 'nickname in use'}, status=status.HTTP_409_CONFLICT)
             user_local.nickname = nickname
-            user_local.save()
+            # user_local.save()
         if password not in [None, '', 'nul'] and password != passwordConfirm:
             return Response({"message": 'password and password confirmation needs to be the same value'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -440,7 +440,7 @@ def userupdate(request):
 
             user_local.s_name = s_name
             user_local.s_answer = hashed
-            user_local.save()
+            # user_local.save()
         serializer = UserSerializer(user_local, data=data, partial=True)
         if serializer.is_valid():
             check = True if 'email' in data else False
