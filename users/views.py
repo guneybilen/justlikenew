@@ -88,7 +88,6 @@ def users_view(request):
         if serializer.is_valid():
             serializer.save()
             user = CustomUser.objects.filter(email=username).first()
-            user.save()
             activate_token = generate_activate_account_token(user)
             subject = 'justlikenew.shop - Verify Your Email'
             message = """Please follow the link below for activating your account 
@@ -103,6 +102,7 @@ def users_view(request):
             recepient = str(username)
             send_mail(subject,
                       message, 'a@a.com', [recepient], fail_silently=False)
+            user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -207,12 +207,13 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 @csrf_exempt
 def refresh_token_view(request):
+    print('request.user', request.user)
     if request.user == AnonymousUser:
         return Response({"access_token": None, "refresh_token": None, 'user': None},
                         status=status.HTTP_401_UNAUTHORIZED)
     try:
         User = get_user_model()
-        user = User.objects.filter(nickname=request.user).first()
+        user = User.objects.get(pk=request.user.id)
         if not user:
             return Response(
                 {'access_token': None, 'refresh_token': None, 'user': None, 'status': 'signin or signup'})
@@ -228,8 +229,10 @@ def refresh_token_view(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def get_security_questions(request):
-    return Response({"names": [(tag.name) for tag in CustomUser().SecurityType],
-                     "values": [(tag.value) for tag in CustomUser().SecurityType]})
+    if request.method == 'GET':
+        return Response({"names": [(tag.name) for tag in CustomUser().SecurityType],
+                         "values": [(tag.value) for tag in CustomUser().SecurityType]})
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -384,3 +387,81 @@ def accountactivaterepeatrequest(request):
     return Response({"state": 'We just sent you an email. Please, check your email ' +
                               'inbox follow the link in order to activate your account'},
                     status=status.HTTP_201_CREATED)
+
+
+@api_view(['PATCH'])
+@permission_classes([AllowAny])
+@csrf_exempt
+def userupdate(request):
+
+    if request.method == 'PATCH':
+        pk = request.data.get('pk')
+        user_local = CustomUser.objects.get(pk=pk)
+        if not user_local:
+            print('no user with this email')
+            return Response(
+                {'state': "user to be updated was not found"})
+
+        email = request.data.get('email')
+        password = request.data.get('password')
+        passwordConfirm = request.data.get('passwordConfirm')
+        nickname = request.data.get('nickname')
+        s_name = request.data.get('s_name')
+        s_answer = request.data.get('s_answer')
+
+        data = {}
+        if email and email not in [None, '', 'nul'] and user_local.email != email:
+            forEmailCheck = CustomUser.objects.filter(email=email).exists()
+            if forEmailCheck:
+                return Response({"message": 'email in use'},
+                                status=status.HTTP_409_CONFLICT)
+            data["email"] = email
+        if nickname and nickname not in [None, '', 'nul']:
+            forNickNameCheck = CustomUser.objects.filter(nickname=nickname).exists()
+            if forNickNameCheck:
+                return Response({"message": 'nickname in use'}, status=status.HTTP_409_CONFLICT)
+            user_local.nickname = nickname
+            user_local.save()
+        if password not in [None, '', 'nul'] and password != passwordConfirm:
+            return Response({"message": 'password and password confirmation needs to be the same value'},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        if password not in [None, '', 'nul']:
+            result = validate_password_strength(password)
+
+            if result is not None:
+                return Response({"message": result}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            user_local.set_password(password)
+        if s_answer and s_answer not in [None, '', 'nul']:
+            if s_name not in [(tag.name) for tag in CustomUser().SecurityType]:
+                return Response({"message": 'security question must be selected'},
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
+            hashed = sha512_crypt.encrypt(s_answer)
+
+            user_local.s_name = s_name
+            user_local.s_answer = hashed
+            user_local.save()
+        serializer = UserSerializer(user_local, data=data, partial=True)
+        if serializer.is_valid():
+            check = True if 'email' in data else False
+            if check:
+                subject = 'justlikenew.shop - Your email in our database changed.'
+                message = """You just changed your email address from {0} to {1}
+                            If there is a problem with this procedure,
+                            please contact at:
+                                        emailchangedwithoutpermission@justlkenew.shop
+                                            
+                            Thanks,
+                            - justlikenew.shop team
+                            """.format(user_local.email, email)
+
+                recepient1 = str(user_local.email)
+                recepient2 = str(email)
+                send_mail(subject,
+                          message, 'a@a.com', [recepient1, recepient2])
+                serializer.save()
+                user_local.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
+    return Response(status=status.HTTP_400_BAD_REQUEST)

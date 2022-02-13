@@ -15,7 +15,7 @@ from users import views
 from .views import login_view, refresh_token_view, logout_view, \
     users_view, get_security_questions, passwordreset, \
     getsecretquestion, passwordresetcomplete, accountactivate, \
-    accountactivaterepeatrequest
+    accountactivaterepeatrequest, userupdate
 
 urlpatterns = [
     # path('', include("django.contrib.auth.urls")),
@@ -31,4 +31,5 @@ urlpatterns = [
     path('passwordresetcomplete/', passwordresetcomplete, name='passwordresetcomplete'),
     path('activateaccount/<str:token>/', accountactivate, name='activateaccount'),
     path('repeatactivate/', accountactivaterepeatrequest, name='repeatactivate'),
+    path('updateuser/', userupdate, name='updateuser'),
 ]

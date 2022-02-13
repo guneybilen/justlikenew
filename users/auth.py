@@ -32,7 +32,7 @@ def generate_reset_token(user):
         'iat': datetime.datetime.utcnow()
     }
     activate_token = jwt.encode(
-        reset_token_payload, settings.GENERATE_ACTIVATE_TOKEN, algorithm='HS256')
+        reset_token_payload, settings.GENERATE_RESET_TOKEN, algorithm='HS256')
 
     return activate_token
 
@@ -44,6 +44,6 @@ def generate_activate_account_token(user):
         'iat': datetime.datetime.utcnow()
     }
     activate_token_payload = jwt.encode(
-        activate_token_payload, settings.GENERATE_RESET_TOKEN, algorithm='HS256')
+        activate_token_payload, settings.GENERATE_ACTIVATE_TOKEN, algorithm='HS256')
 
     return activate_token_payload
