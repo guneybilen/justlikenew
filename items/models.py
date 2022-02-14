@@ -38,7 +38,7 @@ class Item(models.Model):
 
     @property
     def get_seller_nickname(self):
-        return f"{self.seller}"
+        return f"{self.seller.nickname}"
 
     @property
     def get_user_id(self):
