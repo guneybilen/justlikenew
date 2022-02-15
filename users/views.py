@@ -13,6 +13,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from .auth import generate_access_token, generate_refresh_token, generate_reset_token, generate_activate_account_token
 from django.utils.translation import gettext as _
+from django.core.mail import EmailMultiAlternatives
 import jwt
 from django.conf import settings
 import sha512_crypt
@@ -256,18 +257,30 @@ def passwordreset(request):
         subject = 'justlikenew.shop - Password Reset Email'
         reset_token = generate_reset_token(user)
         message = """Please follow the link below for resetting you password 
-                     https://justlikenew.shop/newpassword/{reset_token}
+                     <a href="https://justlikenew.shop/newpassword/{reset_token}">
+                        https://justlikenew.shop/newpassword/{reset_token}
+                     </a>
                      
                      If you can not follow the link just copy the link and go to the url address.
                      
                      Thanks,
                      - justlikenew.shop team
-                """.format(reset_token=reset_token)
+                 """.format(reset_token=reset_token)
+        message_html = """Please follow the link below for resetting you password 
+                          https://justlikenew.shop/newpassword/{reset_token}
 
+                          If you can not follow the link just copy the link and go to the url address.
+
+                          Thanks,
+                          - justlikenew.shop team
+                """.format(reset_token=reset_token)
         recepient = str(email)
+
+        msg = EmailMultiAlternatives(subject, message, settings.EMAIL_HOST_USER, [recepient])
+        msg.attach_alternative(message_html, "text/html")
+
         try:
-            send_mail(subject,
-                  message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
+            msg.send()
         except Exception as e:
             print('error ', e)
         return Response({'state': "if there is an account associated with this email we will send an email"})
@@ -387,10 +400,21 @@ def accountactivaterepeatrequest(request):
                 - justlikenew.shop team
                """.format(activate_token=activate_token)
 
+    message_html = """Please follow the link below for activating your account 
+                   <a href="https://justlikenew.shop/activation/{activate_token}">
+                   https://justlikenew.shop/activation/{activate_token}
+                   </a>
+
+                   If you can not follow the link just copy the link and go to the url address.
+
+                   Thanks,
+                   - justlikenew.shop team
+                   """.format(activate_token=activate_token)
     recepient = str(username)
+    msg = EmailMultiAlternatives(subject, message, settings.EMAIL_HOST_USER, [recepient])
+    msg.attach_alternative(message_html, "text/html")
     try:
-        send_mail(subject,
-              message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
+        msg.send()
     except Exception as e:
         print('error ', e)
     return Response({"state": 'We just sent you an email. Please, check your email ' +
