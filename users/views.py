@@ -17,6 +17,7 @@ from django.core.mail import EmailMultiAlternatives
 import jwt
 from django.conf import settings
 import sha512_crypt
+import smtplib
 
 
 def validate_password_strength(value):
@@ -102,9 +103,11 @@ def users_view(request):
 
             recepient = str(username)
             try:
-                 send_mail(subject,
-                           message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
-                 user.save()
+                smtpObj = smtplib.SMTP(settings.EMAIL_HOST)
+                smtpObj.starttls()
+                smtpObj.sendmail(settings.EMAIL_HOST_USER, recepient, message)
+                print("Successfully sent email")
+                user.save()
             except Exception as e:
                 print('error ', e)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -426,7 +429,6 @@ def accountactivaterepeatrequest(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 def userupdate(request):
-
     if request.method == 'PATCH':
         pk = request.data.get('pk')
         user_local = CustomUser.objects.get(pk=pk)
