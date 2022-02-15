@@ -100,8 +100,8 @@ def users_view(request):
                                     """.format(activate_token=activate_token)
 
             recepient = str(username)
-            send_mail(subject,
-                      message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
+            # send_mail(subject,
+            #           message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
