@@ -91,13 +91,13 @@ def users_view(request):
             activate_token = generate_activate_account_token(user)
             subject = 'justlikenew.shop - Verify Your Email'
             message = """Please follow the link below for activating your account 
-                                    http://localhost:3000/activation/{activate_token}
+                        https://justlikenew.shop/activation/{activate_token}
 
-                                    If you can not follow the link just copy the link and go to the url address.
+                        If you can not follow the link just copy the link and go to the url address.
 
-                                    Thanks,
-                                    - justlikenew.shop team
-                                    """.format(activate_token=activate_token)
+                        Thanks,
+                        - justlikenew.shop team
+                    """.format(activate_token=activate_token)
 
             recepient = str(username)
             try:
@@ -256,13 +256,13 @@ def passwordreset(request):
         subject = 'justlikenew.shop - Password Reset Email'
         reset_token = generate_reset_token(user)
         message = """Please follow the link below for resetting you password 
-                     http://localhost:3000/newpassword/{reset_token}
+                     https://justlikenew.shop/newpassword/{reset_token}
                      
                      If you can not follow the link just copy the link and go to the url address.
                      
                      Thanks,
                      - justlikenew.shop team
-                     """.format(reset_token=reset_token)
+                """.format(reset_token=reset_token)
 
         recepient = str(email)
         try:
@@ -379,13 +379,13 @@ def accountactivaterepeatrequest(request):
     activate_token = generate_activate_account_token(user)
     subject = 'justlikenew.shop - Verify Your Email'
     message = """Please follow the link below for activating your account 
-                                       http://localhost:3000/activation/{activate_token}
+                https://justlikenew.shop/activation/{activate_token}
 
-                                       If you can not follow the link just copy the link and go to the url address.
+                If you can not follow the link just copy the link and go to the url address.
 
-                                       Thanks,
-                                       - justlikenew.shop team
-                                       """.format(activate_token=activate_token)
+                Thanks,
+                - justlikenew.shop team
+               """.format(activate_token=activate_token)
 
     recepient = str(username)
     try:
