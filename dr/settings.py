@@ -34,7 +34,7 @@ GENERATE_ACTIVATE_TOKEN = os.getenv('GENERATE_ACTIVATE_TOKEN')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.ondigitalocean.app', '.justlikenew.shop', '.items-fe-8xk84.ondigitalocean.app', '.localhost',
+ALLOWED_HOSTS = ['.justlikenew.shop', '.ondigitalocean.app', '.items-fe-8xk84.ondigitalocean.app', '.localhost',
                  '127.0.0.1', '192.168.0.165', '192.168.0.193']
 # ALLOWED_HOSTS = ['*']
 
@@ -47,13 +47,13 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 CORS_ALLOWED_ORIGINS = [
+    'https://justlikenew.shop',
     'http://localhost:3000',
     'http://localhost:8000',
     "http://127.0.0.1:8000",
     "http://127.0.0.1:3000",
     'http://192.168.0.193:3000',
     'https://items-fe-8xk84.ondigitalocean.app',
-    'https://justlikenew.shop',
 ]
 
 CORS_ALLOW_HEADERS = [
