@@ -103,9 +103,9 @@ def users_view(request):
             try:
                  send_mail(subject,
                            message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
+                 user.save()
             except Exception as e:
                 print('error ', e)
-            user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -265,8 +265,11 @@ def passwordreset(request):
                      """.format(reset_token=reset_token)
 
         recepient = str(email)
-        send_mail(subject,
+        try:
+            send_mail(subject,
                   message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
+        except Exception as e:
+            print('error ', e)
         return Response({'state': "if there is an account associated with this email we will send an email"})
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -385,8 +388,11 @@ def accountactivaterepeatrequest(request):
                                        """.format(activate_token=activate_token)
 
     recepient = str(username)
-    send_mail(subject,
+    try:
+        send_mail(subject,
               message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
+    except Exception as e:
+        print('error ', e)
     return Response({"state": 'We just sent you an email. Please, check your email ' +
                               'inbox follow the link in order to activate your account'},
                     status=status.HTTP_201_CREATED)
@@ -448,22 +454,26 @@ def userupdate(request):
         if serializer.is_valid():
             check = True if 'email' in data else False
             if check:
-                subject = 'justlikenew.shop - Your email in our database changed.'
-                message = """You just changed your email address from {0} to {1}
-                            If there is a problem with this procedure,
-                            please contact at:
-                                        emailchangedwithoutpermission@justlkenew.shop
-                                            
-                            Thanks,
-                            - justlikenew.shop team
-                            """.format(user_local.email, email)
+                try:
 
-                recepient1 = str(user_local.email)
-                recepient2 = str(email)
-                send_mail(subject,
-                          message, settings.EMAIL_HOST_USER, [recepient1, recepient2])
-                serializer.save()
-                user_local.save()
+                    subject = 'justlikenew.shop - Your email in our database changed.'
+                    message = """You just changed your email address from {0} to {1}
+                                If there is a problem with this procedure,
+                                please contact at:
+                                            emailchangedwithoutpermission@justlkenew.shop
+                                                
+                                Thanks,
+                                - justlikenew.shop team
+                                """.format(user_local.email, email)
+
+                    recepient1 = str(user_local.email)
+                    recepient2 = str(email)
+                    send_mail(subject,
+                              message, settings.EMAIL_HOST_USER, [recepient1, recepient2])
+                    serializer.save()
+                    user_local.save()
+                except Exception as e:
+                    print('error ', e)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
