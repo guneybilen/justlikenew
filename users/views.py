@@ -105,6 +105,7 @@ def users_view(request):
             try:
                 smtpObj = smtplib.SMTP(settings.EMAIL_HOST)
                 smtpObj.starttls()
+                smtpObj.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
                 smtpObj.sendmail(settings.EMAIL_HOST_USER, recepient, message)
                 print("Successfully sent email")
                 user.save()
