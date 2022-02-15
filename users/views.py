@@ -354,7 +354,7 @@ def accountactivate(request, token):
 
         try:
             payload = jwt.decode(
-                token, settings.GENERATE_RESET_TOKEN, algorithms=['HS256'])
+                token, settings.GENERATE_ACTIVATE_TOKEN, algorithms=['HS256'])
         except jwt.exceptions.InvalidSignatureError:
             return Response({"state": 'token has invalid signature.'},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
