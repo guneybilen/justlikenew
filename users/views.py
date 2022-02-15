@@ -101,7 +101,7 @@ def users_view(request):
 
             recepient = str(username)
             send_mail(subject,
-                      message, 'a@a.com', [recepient], fail_silently=False)
+                      message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
             user.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -263,7 +263,7 @@ def passwordreset(request):
 
         recepient = str(email)
         send_mail(subject,
-                  message, 'a@a.com', [recepient], fail_silently=False)
+                  message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
         return Response({'state': "if there is an account associated with this email we will send an email"})
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -383,7 +383,7 @@ def accountactivaterepeatrequest(request):
 
     recepient = str(username)
     send_mail(subject,
-              message, 'a@a.com', [recepient], fail_silently=False)
+              message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
     return Response({"state": 'We just sent you an email. Please, check your email ' +
                               'inbox follow the link in order to activate your account'},
                     status=status.HTTP_201_CREATED)
@@ -458,7 +458,7 @@ def userupdate(request):
                 recepient1 = str(user_local.email)
                 recepient2 = str(email)
                 send_mail(subject,
-                          message, 'a@a.com', [recepient1, recepient2])
+                          message, settings.EMAIL_HOST_USER, [recepient1, recepient2])
                 serializer.save()
                 user_local.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

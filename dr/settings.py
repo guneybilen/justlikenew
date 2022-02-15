@@ -142,6 +142,10 @@ POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")  # database user passwor
 POSTGRES_USER = os.environ.get("POSTGRES_USER")  # database username
 POSTGRES_HOST = os.environ.get("POSTGRES_HOST")  # database host
 POSTGRES_PORT = os.environ.get("POSTGRES_PORT")  # database port
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
 
 POSTGRES_READY = (
         POSTGRES_DB is not None
@@ -237,14 +241,9 @@ sentry_sdk.init(
 # limit per image file
 LIMIT_MB = 10
 
+#
+# EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+# EMAIL_FILE_PATH = str(BASE_DIR.joinpath('sent_emails'))
 
-EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-EMAIL_FILE_PATH = str(BASE_DIR.joinpath('sent_emails'))
 
-
-# EMAIL_BACKEND = ‘django.core.mail.backends.smtp.EmailBackend’
-# EMAIL_HOST = ‘smtp.gmail.com’
-# EMAIL_USE_TLS = True
-# EMAIL_PORT = 587
-# EMAIL_HOST_USER = ‘your_account@gmail.com’
-# EMAIL_HOST_PASSWORD = ‘your account’s password’
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
