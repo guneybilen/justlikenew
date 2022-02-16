@@ -213,7 +213,7 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 @csrf_exempt
 def refresh_token_view(request):
-    print('request.user', request.user)
+    # print('request.user', request.user)
     if request.user == AnonymousUser:
         return Response({"access_token": None, "refresh_token": None, 'user': None},
                         status=status.HTTP_401_UNAUTHORIZED)
