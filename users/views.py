@@ -44,7 +44,7 @@ def validate_password_strength(value):
 @permission_classes([AllowAny])
 @csrf_exempt
 def users_view(request):
-    print(request.data)
+    # print(request.data)
     if request.method == 'POST':
         User = get_user_model()
         username = request.data.get('email')
@@ -103,16 +103,14 @@ def users_view(request):
 
             recepient = str(username)
             try:
-                smtpObj = smtplib.SMTP(settings.EMAIL_HOST)
-                smtpObj.starttls()
-                smtpObj.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                smtpObj.sendmail(settings.EMAIL_HOST_USER, recepient, message)
-                print("Successfully sent email")
+                send_mail(subject,
+                          message, settings.EMAIL_HOST_USER, [recepient], fail_silently=False)
                 user.save()
             except Exception as e:
                 print('error ', e)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET", "PUT", "DELETE"])
@@ -269,7 +267,7 @@ def passwordreset(request):
                      
                      Thanks,
                      - justlikenew.shop team
-                 """.format(reset_token=reset_token)
+                  """.format(reset_token=reset_token)
         message_html = """Please follow the link below for resetting you password 
                           https://justlikenew.shop/newpassword/{reset_token}
 
@@ -277,7 +275,7 @@ def passwordreset(request):
 
                           Thanks,
                           - justlikenew.shop team
-                """.format(reset_token=reset_token)
+                       """.format(reset_token=reset_token)
         recepient = str(email)
 
         msg = EmailMultiAlternatives(subject, message, settings.EMAIL_HOST_USER, [recepient])
