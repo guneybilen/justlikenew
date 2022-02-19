@@ -34,9 +34,11 @@ GENERATE_ACTIVATE_TOKEN = os.getenv('GENERATE_ACTIVATE_TOKEN')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.justlikenew.shop', '.ondigitalocean.app', '.items-fe-8xk84.ondigitalocean.app', '.localhost',
-                 '127.0.0.1', '192.168.0.165', '192.168.0.193']
-# ALLOWED_HOSTS = ['*']
+
+#ALLOWED_HOSTS = ['.justlikenew.shop', '.ondigitalocean.app', '.items-fe-8xk84.ondigitalocean.app', '.localhost',
+#                 '127.0.0.1', '192.168.0.165', '192.168.0.193']
+
+ALLOWED_HOSTS = ['.justlikenew.shop', '127.0.0.1', '.localhost', '159.203.44.161']
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -45,16 +47,21 @@ CORS_ALLOW_CREDENTIALS = True
 #     "*",
 # ]
 
+#CORS_ALLOWED_ORIGINS = ['https://*']
 
 CORS_ALLOWED_ORIGINS = [
-    'https://justlikenew.shop',
-    'http://localhost:3000',
-    'http://localhost:8000',
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000",
-    'http://192.168.0.193:3000',
-    'https://items-fe-8xk84.ondigitalocean.app',
+     'https://justlikenew.shop',
+     'http://localhost:8000',
+     'https://www.justlikenew.shop',
+     "http://127.0.0.1:8000"
+#    'https://justlikenew.shop',
+#    'http://localhost:3000',
+#    'http://localhost:8000',
+#    "http://127.0.0.1:3000",
+#    'http://192.168.0.193:3000',
+#    'https://items-fe-8xk84.ondigitalocean.app',
 ]
+
 
 CORS_ALLOW_HEADERS = [
     "accept",
@@ -142,10 +149,11 @@ POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD")  # database user passwor
 POSTGRES_USER = os.environ.get("POSTGRES_USER")  # database username
 POSTGRES_HOST = os.environ.get("POSTGRES_HOST")  # database host
 POSTGRES_PORT = os.environ.get("POSTGRES_PORT")  # database port
-EMAIL_HOST = os.environ.get("EMAIL_HOST")
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-EMAIL_PORT = os.environ.get("EMAIL_PORT")
+
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
 
 POSTGRES_READY = (
         POSTGRES_DB is not None
@@ -218,8 +226,9 @@ REST_FRAMEWORK = {
     )
 }
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+STATIC_URL = '/filesstable/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'filesstable/')
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

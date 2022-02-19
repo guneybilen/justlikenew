@@ -17,7 +17,7 @@ RUN apk del .tmp-build-deps
 
 RUN mkdir /app
 WORKDIR /app
-COPY ./app/ /app
+COPY ../justlikenew/ /app
 
 RUN mkdir -p ~/web/media
 RUN mkdir -p ~/web/static

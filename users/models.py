@@ -78,8 +78,8 @@ class CustomUser(AbstractUser):
     createdAt = models.DateTimeField(_("Registration Date"), auto_now_add=True)
     updatedAt = models.DateTimeField(_("Updated at"), auto_now=True)
     is_active = models.BooleanField(default=False)
-    s_name = models.CharField(max_length=50, choices=[(x.name, x.value) for x in SecurityType])
-    s_answer = models.CharField(max_length=100)
+    s_name = models.CharField(max_length=100, choices=[(x.name, x.value) for x in SecurityType])
+    s_answer = models.CharField(max_length=255)
     refresh_token = models.CharField(max_length=255, null=True, default=None)
 
     USERNAME_FIELD = 'email'

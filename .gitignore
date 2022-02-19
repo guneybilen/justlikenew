@@ -195,3 +195,6 @@ errors.txt
 .idea/
 
 /sent_emails/
+
+filesstable/
+media/

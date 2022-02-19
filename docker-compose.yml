@@ -16,7 +16,7 @@ services:
       - DB_HOST=db
       - DB_NAME=app
       - DB_USER=postgres
-      - DB_PASS=
+      - DB_PASS=poiu0987
     depends_on:
       - db
   db:
@@ -24,6 +24,6 @@ services:
     environment:
       - POSTGRES_DB=app
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=
+      - POSTGRES_PASSWORD=poiu0987
     ports:
       - "5432:5432"

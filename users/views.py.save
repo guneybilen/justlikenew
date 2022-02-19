@@ -99,7 +99,7 @@ def users_view(request):
                         text = """Please follow the link below for activating your account 
                                   https://justlikenew.shop/activation/{activate_token}
 
-         	        If you can not follow the link just copy the link and go to the address bar.
+         	        If you can not follow the link just copy the link and go to the url address.
 
                         Thanks,
                         - justlikenew.shop team
@@ -274,7 +274,7 @@ def passwordreset(request):
                 text = """Please follow the link below for resetting you password 
                           https://justlikenew.shop/newpassword/{reset_token}
 
-                          If you can not follow the link just copy the link and go to the address bar.
+                          If you can not follow the link just copy the link and go to the url address.
 
                           Thanks,
                           - justlikenew.shop team
@@ -284,7 +284,7 @@ def passwordreset(request):
                 message['Subject'] = 'justlikenew.shop - Password Reset Email'
                 message['From'] =  settings.EMAIL_HOST_USER
                 message['To'] = recipient
-                print('message', message)
+                #print('message', message)
                 server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
                 server.sendmail(settings.EMAIL_HOST_USER, recipient, message.as_string())
                 print("Successfully sent email")
@@ -407,7 +407,7 @@ def accountactivaterepeatrequest(request):
     text = """Please follow the link below for activating your account 
                 https://justlikenew.shop/activation/{activate_token}
 
-                If you can not follow the link just copy the link and go to the address bar.
+                If you can not follow the link just copy the link and go to the url address.
 
                 Thanks,
                 - justlikenew.shop team
@@ -485,23 +485,20 @@ def userupdate(request):
 
                     text = """You just changed your email address from {0} to {1}
                                 If there is a problem with this procedure,
-                                please contact us at:
-                                            admin@justlikenew.shop
+                                please contact at:
+                                            emailchangedwithoutpermission@justlkenew.shop
                                 Thanks,
                                 - justlikenew.shop team
                                 """.format(user_local.email, email)
                     message = MIMEText(text)
-                    message['Subject']='justlikenew.shop - Your email in our database changed.'
+                    message['Ssubject']='justlikenew.shop - Your email in our database changed.'
                     recipient1 = str(user_local.email)
                     recipient2 = str(email)
-                    recipients = [recipient1, recipient2]
-                    message['To']=', '.join(recipients)
-                    message['From'] =  settings.EMAIL_HOST_USER
-
+                    message['To']=[recipient1, recipient2]
                     with smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT) as server:
                         server.starttls()
                         server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                        server.sendmail(settings.EMAIL_HOST_USER, recipients, message.as_string())
+                        server.sendmail(settings.EMAIL_HOST_USER, message['To'], message.as_string())
                         print("Successfully sent email")
                         serializer.save()
                         user_local.save()
